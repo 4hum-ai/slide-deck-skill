@@ -1,17 +1,20 @@
 ---
 name: deck-4hum-ai
 description: >
-  Create, edit, and publish professional slide decks on deck-4hum-ai.
-  The agent generates deckJson directly from the slide-scene-graph v0.4.0
-  schema, validates it locally, then saves it via Python API scripts. Use this
-  skill when the user asks to make a presentation, slide deck, or slideshow, or
-  to iteratively improve one.
+  Create, edit, and publish professional slide decks on deck.4hum.ai. Generates
+  deckJson from the slide-scene-graph v0.4.0 schema, validates locally, and
+  saves via Python scripts. Use when the user asks to make a presentation, slide
+  deck, slideshow, pitch deck, or iteratively improve one. Covers themes,
+  charts, tables, diagrams, speaker notes, animations, and AI-generated images.
 license: MIT
-compatibility: Python 3.8+
+compatibility: >
+  Python 3.8+. Requires network access to the deck.4hum.ai API. Designed for
+  Claude Code and agentskills.io-compatible agent implementations.
+allowed-tools: Bash Read
 metadata:
   platform: deck-4hum-ai
-  api: https://open-academy-api-mz4xquo5lq-as.a.run.app
-  app: https://deck.4hum.ai
+  author: 4hum-ai
+  version: "1.0.0"
   argument-hint: "<topic or title for the deck>"
 ---
 
