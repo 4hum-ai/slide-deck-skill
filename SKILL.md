@@ -50,24 +50,68 @@ REST API.
    - `animations` — include when the deck is meant to be presented live or as
      a video; skip for reference/document-style decks (see **Animations** below)
    - `transitions` — include alongside animations; a simple `fade` is fine
-6. **Save** the deck:
+6. **Preflight validate** the deck before saving. Pipe the JSON through the local
+   validator and fix every reported issue:
+   ```bash
+   node examples/agent-skills-marketplace.mjs | python $CLAUDE_SKILL_DIR/scripts/deck_validator.py
+   ```
+   When generating JSON with another command, replace the `node ...` portion
+   with your generator. `save_deck.py` also runs this validator automatically
+   before it contacts the API.
+7. **Save** the deck:
    ```bash
    python $CLAUDE_SKILL_DIR/scripts/save_deck.py "Title" '<deckJson>'
    ```
-7. **Show the URL to the user.** The script prints a line like:
+8. **Show the URL to the user.** The script prints a line like:
    ```
    Deck saved: https://deck.4hum.ai/app/decks/<id>/edit
    ```
    **Always surface this URL in your reply** so the user can open and review the
    deck immediately. Format it as a clickable Markdown link:
    `[Open deck](https://deck.4hum.ai/app/decks/<id>/edit)`
-8. **Evaluate** the result. If iterating, fetch the deck, refine the JSON, and
+9. **Evaluate** the result. If iterating, fetch the deck, refine the JSON, and
    call `update_deck.py` with the improved JSON. Each update also prints a URL —
    show it again after every update.
-9. To automate the generate → evaluate → improve loop:
+10. To automate the generate → evaluate → improve loop:
    ```bash
    python $CLAUDE_SKILL_DIR/scripts/improve_loop.py "$ARGUMENTS" --threshold 8
    ```
+
+---
+
+## Preflight Rules
+
+Use `scripts/deck_validator.py` before every save, and prefer the reusable
+helpers in `scripts/deck_patterns.mjs` for common layouts. The helpers produce
+schema-safe text, shapes, lines, cards, tables, diagrams, sections, and deck
+envelopes.
+
+Hard rules that prevent common API failures:
+
+- Every object must have `id`, `type`, `x`, `y`, `width`, and `height`.
+- `width` and `height` must never be negative. Avoid zero-size decorative
+  objects; use a visible positive bound even for divider lines.
+- Every text object must set `role` to one of `title`, `subtitle`, `heading`,
+  `body`, `caption`, or `code`.
+- Compact cards should use `body` or `caption` text roles. Do not force large
+  `heading` text into short cards.
+- Every line object must include `start` and `end` points in addition to
+  `x`, `y`, `width`, and `height`.
+- Use theme token refs for object colors, such as `{"token":"foreground"}`.
+  Keep raw hex colors inside `theme.colors`.
+- Tables must include `styling.headerText.color` and
+  `styling.bodyText.color`; otherwise text can be invisible on dark themes.
+- Table `cells` must be a rectangular 2D array matching `rows` and `cols`.
+
+Runnable example:
+
+```bash
+node examples/agent-skills-marketplace.mjs | python scripts/deck_validator.py
+node examples/agent-skills-marketplace.mjs | python scripts/save_deck.py "Agent Skills & Skills Marketplace"
+```
+
+If the API still rejects a deck, `save_deck.py` prints the rejected path and an
+excerpt of the nearest object so the failing slide element can be fixed quickly.
 
 ---
 

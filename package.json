@@ -7,7 +7,7 @@
     "slide-deck-skill": "./dist/index.js"
   },
   "main": "./dist/index.js",
-  "files": ["dist", "scripts", "SKILL.md", "README.md"],
+  "files": ["dist", "scripts", "examples", "SKILL.md", "README.md"],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
