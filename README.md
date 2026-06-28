@@ -28,44 +28,29 @@ JSON itself.
 
 ## Installation
 
-### Claude Code
+The easiest way — open a session with your agent and ask it to install the
+skill globally:
 
-Clone the skill into your user-level skills directory (available in all sessions):
+> "Clone https://github.com/4hum-ai/slide-deck-skill and install it globally
+> so the skill is available in all future sessions."
+
+The agent knows where its own global skills directory is and will handle the
+rest. Start a new session afterward to activate it.
+
+### Manual install (Claude Code)
+
+If you prefer to do it yourself:
 
 ```bash
+# Global — available in all Claude Code sessions:
 git clone https://github.com/4hum-ai/slide-deck-skill ~/.claude/skills/slide-deck-skill
-```
 
-Or project-local (available only in that project):
-
-```bash
+# Project-local — available only in this project:
 git clone https://github.com/4hum-ai/slide-deck-skill .claude/skills/slide-deck-skill
 ```
 
-Start a new Claude Code session — the skill is auto-discovered from those locations.
-To update later: `cd ~/.claude/skills/slide-deck-skill && git pull`
-
-### Any other agent
-
-Clone the repo and load `SKILL.md` according to your agent's skill or context
-mechanism:
-
-```bash
-git clone https://github.com/4hum-ai/slide-deck-skill
-```
-
-Then point your agent at the cloned directory. The entry point is `SKILL.md`
-at the root. All helper scripts are in `scripts/` and references in
-`references/`.
-
-Per-tool paths that are commonly used:
-
-| Tool | Where to clone / copy |
-|---|---|
-| Cursor | `.cursor/rules/` (as a `.mdc` file) or reference `SKILL.md` in `.cursorrules` |
-| Windsurf | `.windsurfrules` or `~/.codeium/windsurf/memories/` |
-| Copilot | Reference from `.github/copilot-instructions.md` |
-| Any other | Check your tool's documentation for how to load custom instructions or skills |
+Start a new session — Claude Code auto-discovers skills from those locations.
+To update: `cd ~/.claude/skills/slide-deck-skill && git pull`
 
 ## Updating the skill
 
@@ -116,43 +101,8 @@ Once installed, just ask your agent:
 > "Create a slide deck on the benefits of microservices architecture."
 
 The agent will design a custom theme, plan the slides, generate deck JSON,
-validate it, preview the result, and return a link like:
+validate it, preview the result, and return a link.
 
-```
-https://deck.4hum.ai/app/decks/<id>/edit
-```
-
-## Manual usage
-
-Authenticate once:
-
-```bash
-python scripts/auth.py
-```
-
-Generate and save a deck:
-
-```bash
-python examples/agent_skills_marketplace.py | python scripts/save_deck.py "My Deck"
-```
-
-Preview rendered slides as screenshots:
-
-```bash
-python scripts/preview_deck.py "<deck-id>"
-```
-
-Update an existing deck:
-
-```bash
-python scripts/update_deck.py "<deck-id>" < deck.json
-```
-
-Generate a hosted image:
-
-```bash
-python scripts/generate_image.py "Futuristic server room, dark neon lighting" --size 1920x1080
-```
 
 ## Structure
 
