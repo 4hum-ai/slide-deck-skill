@@ -371,7 +371,7 @@ async function handleDeleteDeck(args: Record<string, unknown>, creds: Credential
 // ---------------------------------------------------------------------------
 
 const server = new Server(
-  { name: '@4hum-ai/slide-deck-skill', version: '1.2.0' },
+  { name: '@4humai/slide-deck-skill', version: '1.2.0' },
   { capabilities: { tools: {} } }
 );
 
@@ -397,6 +397,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
 const transport = new StdioServerTransport();
 await server.connect(transport);
+
 
 
 

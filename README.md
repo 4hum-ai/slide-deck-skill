@@ -17,7 +17,7 @@ gh skill add 4hum-ai/slide-deck-skill
 ## Quick start (MCP server)
 
 ```bash
-npx @4hum-ai/slide-deck-skill
+npx @4humai/slide-deck-skill
 ```
 
 Add to your MCP client config (`~/.config/claude/claude_desktop_config.json`):
@@ -27,7 +27,7 @@ Add to your MCP client config (`~/.config/claude/claude_desktop_config.json`):
   "mcpServers": {
     "slide-deck": {
       "command": "npx",
-      "args": ["-y", "@4hum-ai/slide-deck-skill"],
+      "args": ["-y", "@4humai/slide-deck-skill"],
       "env": {
         "OPEN_ACADEMY_API_URL": "https://open-academy-api-mz4xquo5lq-as.a.run.app",
         "OPEN_ACADEMY_APP_URL": "https://deck.4hum.ai"
@@ -74,5 +74,6 @@ See [`SKILL.md`](SKILL.md) for the full schema, theme presets, object types, ani
 ## License
 
 MIT
+
 
 
