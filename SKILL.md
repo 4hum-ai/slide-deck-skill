@@ -14,7 +14,7 @@ allowed-tools: Bash Read
 metadata:
   platform: deck-4hum-ai
   author: phong.nguyen@4hum.ai
-  version: "1.12.0"
+  version: "1.13.0"
   argument-hint: "<topic or title for the deck>"
 ---
 
@@ -77,10 +77,17 @@ See `examples/*` for a complete example.
      typography) before generating the full JSON.
 5. **Generate images when useful.** Use `scripts/generate_image.py` or the
    available image tool before writing final `deckJson`. Collect `file_url`
-   values and use them as image `src` fields. Use deterministic `picsum.photos`
-   URLs only for quick drafts or non-critical placeholders. The script prints
-   JSON to stdout only — human-readable lines go to stderr, so you can safely
-   pipe or capture stdout without parsing interference.
+   values and use them as image `src` fields. The script prints JSON to stdout
+   only — human-readable lines go to stderr, so you can safely pipe or capture
+   stdout without parsing interference.
+
+   **Do NOT use `picsum.photos` for content-relevant images.** `picsum.photos`
+   serves random photos from a seeded pool — a seed intended for a "lab" or
+   "genomics" shot may return a fashion boutique, a mountain, or a food photo.
+   Use `generate_image.py` for any image whose subject matters to the slide
+   (hero covers, half-panel lifestyle shots, portraits, section backgrounds).
+   Reserve `picsum.photos` only for texture fills or placeholder regions where
+   the subject is completely irrelevant (e.g. a pure-color background).
 6. **Generate deck JSON.** Use the slide-scene-graph envelope and object shapes
    in `references/scene-graph.md`. Prefer `scripts/block_builder.py` for
    schema-safe blocks: cards, portrait cards, KPI cards, grids, lines, tables,
@@ -165,6 +172,12 @@ text at `y=940, height=40` (not y=700–730). A source at y=720 still leaves
 fix. If your main content ends before y=700, add a second fill element
 (divider + secondary stat, `key insight` body text, or a sub-caption) in
 the y=700–860 zone, then anchor the source at y=940.
+
+**On split-panel slides (image left + text right):** the source citation
+`x` must be inside the text panel, not inside the image panel. If the image
+occupies x=0–700 and text occupies x=720–1840, set the source at
+`x=720, y=940`. A source at x=80 inside an image panel will render behind
+or over the image.
 
 ## Preflight Rules
 

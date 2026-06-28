@@ -3,6 +3,21 @@
 All notable changes to this skill are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.13.0] — 2026-06-29
+
+### Fixed
+
+- **`SKILL.md` — picsum.photos anti-pattern**: Agents were using
+  `picsum.photos` with a content-specific seed (e.g. "lab", "genomics") and
+  receiving completely unrelated images (fashion boutiques, mountains). Added
+  explicit prohibition: never use `picsum.photos` for slides where image
+  subject matters — use `generate_image.py` instead. Reserve `picsum.photos`
+  only for texture fills where subject is irrelevant.
+- **`SKILL.md` — source citation x-position on split-panel slides**: Added
+  rule that the source footnote `x` must be inside the text panel, not inside
+  the image panel. Source text at `x=80` inside a left-image panel renders
+  over the image.
+
 ## [1.12.0] — 2026-06-29
 
 ### Fixed
