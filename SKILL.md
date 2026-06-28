@@ -14,7 +14,7 @@ allowed-tools: Bash Read
 metadata:
   platform: deck-4hum-ai
   author: phong.nguyen@4hum.ai
-  version: "1.10.0"
+  version: "1.11.0"
   argument-hint: "<topic or title for the deck>"
 ---
 
@@ -136,6 +136,28 @@ reserve images only for the cover and closing slides.
 
 **Max features per slide:** Show at most **4 feature cards** per slide. If
 you have more items, either use `bullet_list()` or split into two slides.
+
+## Text Length and Whitespace Rules
+
+**Bullet list character limits** (prevent mid-word wrapping inside `bullet_list()`):
+
+| Panel width | Max chars per bullet |
+|---|---|
+| Half panel (w ≤ 900 px) | 55 characters |
+| Two-thirds panel (w ≤ 1200 px) | 75 characters |
+| Full width (w > 1400 px) | 100 characters |
+
+Count from the start of the text, NOT including the bullet prefix. If a
+bullet would exceed the limit, split the sentence or use shorter phrasing.
+Wrapping mid-sentence (`• Long bullet that breaks\n  mid-phrase`) looks worse
+than a tighter, punchier bullet.
+
+**Fill the vertical canvas.** The slide canvas is 1080 px tall with an 80 px
+safe margin on each side (content zone: y=80 to y=1000). Don't cluster all
+objects in the top 600 px and leave the bottom 400 px empty. Options:
+- Add a `caption` text at `y=920–960` with a source citation or key insight.
+- Extend the chart or table height to fill the space.
+- Use the bottom zone for a divider line + secondary stat.
 
 ## Preflight Rules
 

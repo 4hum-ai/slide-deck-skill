@@ -3,6 +3,17 @@
 All notable changes to this skill are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.11.0] — 2026-06-28
+
+### Added
+
+- **`SKILL.md` — "Text Length and Whitespace Rules" section**: Bullet list
+  character limits by panel width (55 chars for half-panel, 75 for two-thirds,
+  100 for full-width) prevent mid-sentence wrapping inside `bullet_list()`.
+  "Fill the vertical canvas" guidance: content zone is y=80–1000; don't cluster
+  objects in the top 600 px and leave 400 px of empty black at the bottom — use
+  a caption, extend charts/tables, or add a divider + secondary stat.
+
 ## [1.10.0] — 2026-06-28
 
 ### Fixed
