@@ -3,6 +3,19 @@
 All notable changes to this skill are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.0] — 2026-06-28
+
+### Changed
+
+- `SKILL.md` workflow now has **11 steps** with a two-phase research model:
+  - **Step 1 — Domain research**: one or two broad searches to understand the
+    topic, tone, and narrative angle before planning anything.
+  - **Step 3 — Fact-check the outline**: after planning, a second narrower
+    search verifying each specific claim/statistic/date in the outline. Source
+    URLs cited in `speakerNotes`.
+  - Theme design is now step 4 (was step 3), informed by all three prior steps.
+  - Steps 5–11 renumbered from the previous 4–10 (no content changes).
+
 ## [1.5.0] — 2026-06-28
 
 ### Changed

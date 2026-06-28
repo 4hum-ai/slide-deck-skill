@@ -14,7 +14,7 @@ allowed-tools: Bash Read
 metadata:
   platform: deck-4hum-ai
   author: phong.nguyen@4hum.ai
-  version: "1.5.0"
+  version: "1.6.0"
   argument-hint: "<topic or title for the deck>"
 ---
 
@@ -36,25 +36,30 @@ See `examples/*` for a complete example.
 
 ## Workflow
 
-1. **Search for facts first.** If the topic involves factual claims,
-   statistics, current events, product details, laws, or other changeable
-   information, search now and cite source URLs in `speakerNotes`. Understanding
-   the subject matter also informs the theme (sport → bold/high-contrast,
-   finance → formal/neutral, culture → editorial/warm).
+1. **Domain research.** Run one or two broad searches to get oriented: key
+   themes, main actors, tone, narrative angle, and what kind of audience this
+   topic speaks to. The goal is understanding, not fact-gathering — what you
+   learn here feeds directly into the deck plan and theme choices (sport →
+   bold/high-contrast, finance → formal/neutral, culture → editorial/warm).
+   Skip this step only for purely fictional or hypothetical topics.
 2. **Plan the deck.** Define sections, slide titles, one claim per slide, and
    which slides need images. Write a one-line visual prompt for each custom
-   image. Knowing the structure (number of slides, narrative arc, audience)
-   informs the visual density and tone of the theme.
-3. **Design a custom theme.** With the topic and structure in hand, open
+   image. Be specific: each slide title should be a concrete assertion, not a
+   label.
+3. **Fact-check the outline.** For every slide whose claim depends on a
+   statistic, named figure, date, or current event, run a targeted search and
+   confirm the number. Cite the source URL in `speakerNotes`. This is narrower
+   than step 1 — you already know what you need; now you're verifying it.
+4. **Design a custom theme.** With the topic, plan, and facts in hand, open
    `references/theme-presets.md` and use its two examples as structural
    references — not a pick list. Create a new theme object that fits the
-   topic, audience, and emotional tone established in steps 1–2:
+   topic, audience, and emotional tone established in steps 1–3:
 
    - **Color psychology**: blue/indigo = trust/tech, green = growth/nature,
      orange = energy/creativity, purple = innovation/bold, neutral dark = minimal
      keynote, white = formal/corporate.
    - **Font pairing**: use display/heading for impact titles, body for
-     readability, mono only for code examples. Use the Font Mood Reference in
+     readability, mono only for code examples. See the Font Mood Reference in
      `references/theme-presets.md` for proven font–topic pairings.
    - **Structural requirements**: the theme object must include `id` (new uuid),
      `name` (descriptive string), `fonts` (display, heading, body, mono), all
@@ -66,21 +71,21 @@ See `examples/*` for a complete example.
      must use `{"token":"<name>"}` references.
    - Tell the user the theme name and the one-sentence rationale (color mood +
      typography) before generating the full JSON.
-4. **Generate images when useful.** Use `scripts/generate_image.py` or the
+5. **Generate images when useful.** Use `scripts/generate_image.py` or the
    available image tool before writing final `deckJson`. Collect `file_url`
    values and use them as image `src` fields. Use deterministic `picsum.photos`
    URLs only for quick drafts or non-critical placeholders.
-5. **Generate deck JSON.** Use the slide-scene-graph envelope and object shapes
+6. **Generate deck JSON.** Use the slide-scene-graph envelope and object shapes
    in `references/scene-graph.md`. Prefer `scripts/block_builder.py` for
    schema-safe blocks: cards, portrait cards, KPI cards, grids, lines, tables,
    diagrams, sections, and deck envelopes.
-6. **Preflight validate.** Run the local validator and fix every issue:
+7. **Preflight validate.** Run the local validator and fix every issue:
    ```bash
    python examples/agent_skills_marketplace.py | python scripts/deck_validator.py
    ```
    Replace the first command with your own generator. `save_deck.py` also runs
    validation automatically before auth or network calls.
-7. **Save.**
+8. **Save.**
    ```bash
    python scripts/save_deck.py "Title" < deck.json
    ```
@@ -88,18 +93,17 @@ See `examples/*` for a complete example.
    ```bash
    python examples/agent_skills_marketplace.py | python scripts/save_deck.py "Agent Skills & Skills Marketplace"
    ```
-8. **Preview and evaluate.** After saving, use `scripts/preview_deck.py` to
+9. **Preview and evaluate.** After saving, use `scripts/preview_deck.py` to
    capture screenshots of the rendered slides. Review each slide image; fix
    layout, contrast, or content issues before delivering to the user.
    ```bash
    python scripts/preview_deck.py "<deck-id>"
    ```
-   The script opens each slide in the browser and saves PNGs locally. If
-   browser tools are available in the session, use them to inspect individual
-   slides at `https://deck.4hum.ai/app/decks/<id>/edit`.
-9. **Return the URL.** Always surface the edit URL printed by the script:
-   `[Open deck](https://deck.4hum.ai/app/decks/<id>/edit)`.
-10. **Iterate.** If the preview reveals issues or the user requests changes,
+   The script prints per-slide render URLs. If browser tools are available,
+   navigate to each render URL and screenshot after the `renderReady` signal.
+10. **Return the URL.** Always surface the edit URL printed by the script:
+    `[Open deck](https://deck.4hum.ai/app/decks/<id>/edit)`.
+11. **Iterate.** If the preview reveals issues or the user requests changes,
     fix the JSON and call `scripts/update_deck.py`, then re-preview:
     ```bash
     python scripts/update_deck.py "<deck-id>" < deck.json
