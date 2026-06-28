@@ -14,7 +14,7 @@ allowed-tools: Bash Read
 metadata:
   platform: deck-4hum-ai
   author: phong.nguyen@4hum.ai
-  version: "1.0.0"
+  version: "1.1.0"
   argument-hint: "<topic or title for the deck>"
 ---
 
@@ -36,9 +36,27 @@ Use `scripts/deck_patterns.py` for common layouts when writing a generator. See
 
 ## Workflow
 
-1. **Pick a theme.** Choose a preset from `references/theme-presets.md` based on
-   the topic and audience. Briefly tell the user which theme you chose and why.
-   Object colors must use theme tokens; raw hex belongs in `theme.colors`.
+1. **Design a custom theme.** Read `references/theme-presets.md` to understand
+   the six example presets — treat them as inspiration, not a pick list. Create
+   a new theme object that fits the topic, audience, and emotional tone:
+
+   - **Color psychology**: blue/indigo = trust/tech, green = growth/nature,
+     orange = energy/creativity, purple = innovation/bold, neutral dark = minimal
+     keynote, white = formal/corporate.
+   - **Font pairing**: use display/heading for impact titles, body for
+     readability, mono only for code examples. Reference presets for proven pairs
+     (Inter, Georgia, JetBrains Mono).
+   - **Structural requirements**: the theme object must include `id` (new uuid),
+     `name` (descriptive string), `fonts` (display, heading, body, mono), all
+     required `colors` tokens (`background`, `surface`, `foreground`,
+     `mutedForeground`, `primary`, `primaryForeground`, `accent`,
+     `accentForeground`, `border`), and all six `textStyles` roles (`title`,
+     `subtitle`, `heading`, `body`, `caption`, `code`).
+   - Raw hex values go inside `theme.colors` only; every object color field
+     must use `{"token":"<name>"}` references.
+   - Tell the user the theme name and the one-sentence rationale (color mood +
+     typography) before generating the full JSON.
+
 2. **Search for facts when needed.** If the topic involves factual claims,
    statistics, current events, product details, laws, or other changeable
    information, search first and cite source URLs in `speakerNotes`.
@@ -66,10 +84,23 @@ Use `scripts/deck_patterns.py` for common layouts when writing a generator. See
    ```bash
    python examples/agent_skills_marketplace.py | python scripts/save_deck.py "Agent Skills & Skills Marketplace"
    ```
-8. **Return the URL.** Always surface the edit URL printed by the script:
+8. **Preview and evaluate.** After saving, use `scripts/preview_deck.py` to
+   capture screenshots of the rendered slides. Review each slide image; fix
+   layout, contrast, or content issues before delivering to the user.
+   ```bash
+   python scripts/preview_deck.py "<deck-id>"
+   ```
+   The script opens each slide in the browser and saves PNGs locally. If
+   browser tools are available in the session, use them to inspect individual
+   slides at `https://deck.4hum.ai/app/decks/<id>/edit`.
+9. **Return the URL.** Always surface the edit URL printed by the script:
    `[Open deck](https://deck.4hum.ai/app/decks/<id>/edit)`.
-9. **Evaluate and iterate.** If the user requests changes, update the JSON and
-   call `scripts/update_deck.py`. Show the updated URL again.
+10. **Iterate.** If the preview reveals issues or the user requests changes,
+    fix the JSON and call `scripts/update_deck.py`, then re-preview:
+    ```bash
+    python scripts/update_deck.py "<deck-id>" < deck.json
+    python scripts/preview_deck.py "<deck-id>"
+    ```
 
 ## Preflight Rules
 
@@ -106,6 +137,8 @@ The validator catches many of these, but follow them while authoring:
 python scripts/auth.py
 python examples/agent_skills_marketplace.py | python scripts/deck_validator.py
 python examples/agent_skills_marketplace.py | python scripts/save_deck.py "Agent Skills & Skills Marketplace"
+python scripts/preview_deck.py "<deck-id>"               # inspect a saved deck
+python my_generator.py | python scripts/preview_deck.py  # inspect before saving
 python scripts/update_deck.py "<deck-id>" < deck.json
 python scripts/generate_image.py "A futuristic server room, blue accent lighting" --size 1920x1080
 ```

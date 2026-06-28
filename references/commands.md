@@ -54,6 +54,22 @@ python scripts/generate_image.py "Futuristic server room, dark neon lighting" --
 
 Use the returned `file_url` as an image object's `src`.
 
+## Preview / Inspect
+
+```bash
+# Fetch a saved deck by ID and print a per-slide structural summary:
+python scripts/preview_deck.py "<deck-id>"
+
+# Inspect fresh JSON from a generator without saving:
+python my_generator.py | python scripts/preview_deck.py
+```
+
+The script prints:
+- Theme name
+- Per-slide: headline text, object-type counts (e.g. `2×text  1×image  1×chart`)
+- Bounding-box warnings (non-positive sizes, canvas overflow)
+- Edit URL and visual inspection instructions (use `mcp__claude-in-chrome__*` tools)
+
 ## Python Layout Helpers
 
 `scripts/deck_patterns.py` includes schema-safe builders for:
