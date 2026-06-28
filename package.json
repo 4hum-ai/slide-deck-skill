@@ -1,10 +1,10 @@
 {
-  "name": "slide-deck-mcp",
+  "name": "slide-deck-skill",
   "version": "1.2.0",
   "description": "MCP server + Claude Code skill for creating AI-powered slide decks on deck-4hum-ai (open-academia.com)",
   "type": "module",
   "bin": {
-    "slide-deck-mcp": "./dist/index.js"
+    "slide-deck-skill": "./dist/index.js"
   },
   "main": "./dist/index.js",
   "files": ["dist", "scripts", "SKILL.md", "README.md"],
