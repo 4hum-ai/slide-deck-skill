@@ -144,15 +144,38 @@ See `references/image-prompts.md` for proven prompt templates per image type.
 
 `scripts/block_builder.py` includes schema-safe block builders for:
 
-- `dark_tech_theme`, `light_corporate_theme` — ready-to-customize theme presets
-- `text`, `rich_text`, `shape`, `line`, `image`
-- `chart`, `table`, `diagram`
-- `card`, `title_chip`, `process_flow`, `comparison_columns`
-- `portrait_card`, `kpi_card`, `grid`
-- `slide(objects, animate=True)`, `section`, `deck`
+**Themes:**
+- `dark_tech_theme(overrides=None)`, `light_corporate_theme(overrides=None)`
+
+**Primitive objects:**
+- `text(role, x, y, w, h, content)`, `rich_text(role, x, y, w, h, runs)`
+- `shape(x, y, w, h, fill_token)`, `line(x, y, w)`
+- `image(seed_or_url, x, y, w, h)`
+- `video(src, x, y, w, h)` — native video file
+- `embed(url, x, y, w, h)` — YouTube / Vimeo / iframe
+- `frame(x, y, w, h, frameKind=…, src=…)` — device/picture-frame mockup
+- `qr_code(url, x, y, size)`, `qr_vcard(contact, x, y, size)` — QR codes
+- `latex_text(formula, x, y, w, h)` — KaTeX equation
+
+**Data objects:**
+- `chart(x, y, w, h, categories, series, chart_type="bar")`
+- `table(x, y, w, h, rows)` — 2D list of strings
+- `diagram(x, y, w, h, source)` — Mermaid source string
+
+**Composite layouts:**
+- `card(x, y, w, h, heading, body)` → list of objects
+- `title_chip(label, x, y, width)`, `portrait_card(…)`, `kpi_card(…)`
+- `process_flow(items, x, y, w, h)`, `comparison_columns(columns, x, y, w, h)`
+- `grid(items, cols, x, y, total_w, total_h)`
+
+**Slide structure:**
+- `slide(objects, notes="", speaker_notes="", animate=True)`
+- `section(title, slides)`, `deck(title, sections, theme=…)`
 
 Pass `animate=False` to `slide()` for reference-style decks where entrance
 animations would be distracting.
+
+See `references/objects-guide.md` for full field reference and design patterns.
 
 Use the example generator as a template:
 

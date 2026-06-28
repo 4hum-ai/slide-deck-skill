@@ -159,6 +159,115 @@ def image(seed_or_url: str, x: float, y: float, width: float, height: float, **o
     }
 
 
+def video(src: str, x: float, y: float, width: float, height: float, **options) -> dict:
+    obj = {
+        "id": _id(),
+        "type": "video",
+        "x": x,
+        "y": y,
+        "width": max(1, width),
+        "height": max(1, height),
+        "src": src,
+        "autoplay": options.get("autoplay", False),
+        "loop": options.get("loop", False),
+        "muted": options.get("muted", False),
+        "controls": options.get("controls", True),
+    }
+    if "poster" in options:
+        obj["poster"] = options["poster"]
+    if options.get("shape") in ("rectangle", "circle"):
+        obj["shape"] = options["shape"]
+    return obj
+
+
+def embed(url: str, x: float, y: float, width: float, height: float, **options) -> dict:
+    obj = {
+        "id": _id(),
+        "type": "embed",
+        "x": x,
+        "y": y,
+        "width": max(1, width),
+        "height": max(1, height),
+        "url": url,
+    }
+    if "embed_kind" in options or "embedKind" in options:
+        obj["embedKind"] = options.get("embed_kind", options.get("embedKind"))
+    if "autoplay" in options:
+        obj["autoplay"] = options["autoplay"]
+    return obj
+
+
+def qr_code(value: str, x: float, y: float, size: float = 260, **options) -> dict:
+    return {
+        "id": _id(),
+        "type": "qr",
+        "x": x,
+        "y": y,
+        "width": size,
+        "height": size,
+        "mode": "url",
+        "value": value,
+        "errorCorrection": options.get("error_correction", options.get("errorCorrection", "M")),
+        "foreground": options.get("foreground", "#000000"),
+        "background": options.get("background", "#ffffff"),
+    }
+
+
+def qr_vcard(contact: dict, x: float, y: float, size: float = 260, **options) -> dict:
+    return {
+        "id": _id(),
+        "type": "qr",
+        "x": x,
+        "y": y,
+        "width": size,
+        "height": size,
+        "mode": "vcard",
+        "contact": contact,
+        "errorCorrection": options.get("error_correction", options.get("errorCorrection", "H")),
+        "foreground": options.get("foreground", "#000000"),
+        "background": options.get("background", "#ffffff"),
+    }
+
+
+def frame(x: float, y: float, width: float, height: float, **options) -> dict:
+    obj = {
+        "id": _id(),
+        "type": "frame",
+        "x": x,
+        "y": y,
+        "width": max(1, width),
+        "height": max(1, height),
+        "frameKind": options.get("frame_kind", options.get("frameKind", "browser")),
+        "mediaFit": options.get("media_fit", options.get("mediaFit", "cover")),
+    }
+    if "src" in options:
+        obj["src"] = options["src"]
+    if "media_scale" in options or "mediaScale" in options:
+        obj["mediaScale"] = options.get("media_scale", options.get("mediaScale"))
+    if "stroke" in options:
+        obj["stroke"] = token(options["stroke"]) if isinstance(options["stroke"], str) else options["stroke"]
+    if "stroke_width" in options or "strokeWidth" in options:
+        obj["strokeWidth"] = options.get("stroke_width", options.get("strokeWidth", 1))
+    return obj
+
+
+def latex_text(formula: str, x: float, y: float, width: float, height: float, **options) -> dict:
+    return {
+        "id": _id(),
+        "type": "text",
+        "role": options.get("role", "body"),
+        "x": x,
+        "y": y,
+        "width": max(1, width),
+        "height": max(1, height),
+        "content": formula,
+        "latex": formula,
+        "textAlign": options.get("text_align", options.get("textAlign", "center")),
+        "verticalAlign": options.get("vertical_align", options.get("verticalAlign", "middle")),
+        "autoFit": "shrink",
+    }
+
+
 def diagram(x: float, y: float, width: float, height: float, source: str) -> dict:
     return {
         "id": _id(),

@@ -2,6 +2,12 @@
 
 All coordinates are pixels on a 1920 x 1080 canvas. Pass the complete envelope.
 
+> **Object type catalog** — see `references/objects-guide.md` for all supported
+> types with complete examples, design tips, and combination patterns. Types
+> covered there but not in this file: `video`, `embed`, `frame`, `qr`,
+> `placeholder`, and the `latex` field on `text`.
+
+
 ## Envelope
 
 ```json

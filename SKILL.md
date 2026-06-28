@@ -29,6 +29,7 @@ Load these only when needed:
 
 - `references/theme-presets.md` - theme choice, color tokens, typography scale.
 - `references/scene-graph.md` - envelope, object schemas, animations, notes.
+- `references/objects-guide.md` - **all object types** with examples, design tips, and slide patterns. Load this when choosing which object types to use on a slide, or when using `video`, `embed`, `frame`, `qr`, `placeholder`, or `latex`.
 - `references/commands.md` - Python script commands, environment variables, helper API.
 
 Use `scripts/block_builder.py` for common block layouts when writing a generator.

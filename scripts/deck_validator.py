@@ -20,6 +20,7 @@ VALID_OBJECT_TYPES = {
     "text",
     "shape",
     "image",
+    "video",
     "chart",
     "table",
     "diagram",
@@ -285,6 +286,34 @@ def _validate_object(obj: Any, path: str, issues: list[ValidationIssue]) -> None
         if obj.get("engine") not in VALID_DIAGRAM_ENGINES:
             _add(issues, f"{path}.engine", f"must be one of {sorted(VALID_DIAGRAM_ENGINES)}")
         _require_string(obj, "source", path, issues)
+    elif obj_type == "video":
+        _require_string(obj, "src", path, issues)
+        if obj.get("shape") is not None and obj["shape"] not in ("rectangle", "circle"):
+            _add(issues, f"{path}.shape", "must be 'rectangle' or 'circle'")
+    elif obj_type == "embed":
+        _require_string(obj, "url", path, issues)
+        if obj.get("embedKind") is not None and obj["embedKind"] not in ("youtube", "vimeo", "iframe"):
+            _add(issues, f"{path}.embedKind", "must be one of ['youtube', 'vimeo', 'iframe']")
+    elif obj_type == "qr":
+        mode = obj.get("mode")
+        if mode not in ("url", "vcard"):
+            _add(issues, f"{path}.mode", "must be 'url' or 'vcard'")
+        if mode == "url" and not obj.get("value"):
+            _add(issues, f"{path}.value", "is required when mode is 'url'")
+        if mode == "vcard" and not isinstance(obj.get("contact"), dict):
+            _add(issues, f"{path}.contact", "must be a contact object when mode is 'vcard'")
+        if obj.get("errorCorrection") is not None and obj["errorCorrection"] not in ("L", "M", "Q", "H"):
+            _add(issues, f"{path}.errorCorrection", "must be one of ['L', 'M', 'Q', 'H']")
+    elif obj_type == "frame":
+        VALID_FRAME_KINDS = {"laptop", "desktop", "phone", "tablet", "browser", "pictureClassic", "polaroid"}
+        if obj.get("frameKind") is not None and obj["frameKind"] not in VALID_FRAME_KINDS:
+            _add(issues, f"{path}.frameKind", f"must be one of {sorted(VALID_FRAME_KINDS)}")
+        if obj.get("mediaFit") is not None and obj["mediaFit"] not in ("cover", "contain"):
+            _add(issues, f"{path}.mediaFit", "must be 'cover' or 'contain'")
+    elif obj_type == "placeholder":
+        VALID_PLACEHOLDER_ROLES = {"title", "subtitle", "body", "image", "chart", "table", "media"}
+        if obj.get("role") not in VALID_PLACEHOLDER_ROLES:
+            _add(issues, f"{path}.role", f"must be one of {sorted(VALID_PLACEHOLDER_ROLES)}")
     elif obj_type == "line":
         if obj.get("line") not in VALID_LINE_TYPES:
             _add(issues, f"{path}.line", f"must be one of {sorted(VALID_LINE_TYPES)}")
