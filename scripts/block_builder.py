@@ -512,6 +512,62 @@ def grid(
     return objects
 
 
+def bullet_list(
+    items: list,
+    x: float,
+    y: float,
+    width: float,
+    height: float,
+    *,
+    numbered: bool = False,
+    bullet: str = "•",
+    **options,
+) -> dict:
+    """Single text object containing a bullet or numbered list.
+
+    Prefer this over repeating shape+text pairs when you have 4+ items — it
+    keeps object count low and the layout clean.
+
+    Args:
+        items: List of strings (simple items) or dicts with ``"title"`` and
+               optional ``"body"`` keys (two-line items).
+        numbered: If True, use "1.", "2.", … instead of ``bullet``.
+        bullet: The bullet character. Defaults to "•".
+
+    Example::
+
+        bullet_list(
+            ["Early Cancer Detection", "Predictive Analytics", "Drug Discovery"],
+            x=100, y=300, width=760, height=500,
+            role="body",
+        )
+    """
+    lines: list[str] = []
+    for i, item in enumerate(items):
+        prefix = f"{i + 1}." if numbered else bullet
+        if isinstance(item, str):
+            lines.append(f"{prefix}  {item}")
+        elif isinstance(item, dict):
+            title = item.get("title", item.get("heading", ""))
+            body = item.get("body", item.get("description", ""))
+            if body:
+                lines.append(f"{prefix}  {title}: {body}")
+            else:
+                lines.append(f"{prefix}  {title}")
+    content = "\n".join(lines)
+    return text(
+        options.pop("role", "body"),
+        x, y, width, height,
+        content,
+        **options,
+    )
+
+
+def numbered_list(items: list, x: float, y: float, width: float, height: float, **options) -> dict:
+    """Numbered list — convenience wrapper around bullet_list(numbered=True)."""
+    return bullet_list(items, x, y, width, height, numbered=True, **options)
+
+
 def process_flow(items: list[dict], x: float, y: float, width: float, height: float) -> list[dict]:
     gap = 36
     step_width = (width - gap * (len(items) - 1)) / len(items)

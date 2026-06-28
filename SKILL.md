@@ -14,7 +14,7 @@ allowed-tools: Bash Read
 metadata:
   platform: deck-4hum-ai
   author: phong.nguyen@4hum.ai
-  version: "1.6.0"
+  version: "1.10.0"
   argument-hint: "<topic or title for the deck>"
 ---
 
@@ -118,6 +118,25 @@ See `examples/*` for a complete example.
     python scripts/preview_deck.py "<deck-id>"
     ```
 
+## Slide Density Rules
+
+**Object count: aim for 5–12 objects per slide. Never exceed 14.**
+
+Too many objects = visual clutter and slow rendering. The two most common
+violations and their fixes:
+
+| Anti-pattern | Fix |
+|---|---|
+| 7 feature boxes (shape + title + caption each) = 21 objects | Use `bullet_list()` (1 object) OR `grid()` with max 4 items (12 objects) |
+| Repeating card() for every bullet point | Use a single `text()` / `bullet_list()` object with `\n`-separated lines |
+
+**Per-slide image rule:** Include at least one `image()` object in every
+third slide (so slides 0, 2–3, 5–6 in a 7-slide deck have images). Don't
+reserve images only for the cover and closing slides.
+
+**Max features per slide:** Show at most **4 feature cards** per slide. If
+you have more items, either use `bullet_list()` or split into two slides.
+
 ## Preflight Rules
 
 The validator catches many of these, but follow them while authoring:
@@ -134,6 +153,17 @@ The validator catches many of these, but follow them while authoring:
 - Tables must include `styling.headerText.color` and
   `styling.bodyText.color`.
 - Table `cells` must be a rectangular 2D array matching `rows` and `cols`.
+
+## Embed Caution
+
+`embed` objects that use YouTube/Vimeo URLs often render as **"Error 153"** in the slide renderer — YouTube enforces CSP/referrer restrictions that block embedding in many contexts (sandboxed iframes, localhost dev, headless browsers). **Do not use `embed` for YouTube/Vimeo by default.**
+
+Preferred alternatives (always work):
+- `qr` code pointing to the video URL — audience scans with their phone.
+- `video` object with a direct `.mp4` or `.webm` file URL (e.g. from Cloudflare Stream, S3, or GCS).
+- `frame` object (`frameKind: "browser"`) showing a static thumbnail screenshot + play-button shape overlay.
+
+Reserve `embed` for contexts where the target content explicitly supports iframe embedding (e.g. internal Grafana dashboards, Figma prototypes, Google Slides set to "Publish to web").
 
 ## Content Rules
 

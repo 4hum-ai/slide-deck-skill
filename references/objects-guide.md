@@ -193,6 +193,12 @@ content via iframe (live dashboards, interactive demos, web apps).
 - `iframe` kind can embed live web pages — useful for live dashboards or Figma prototypes.
 - Always size to 16:9 (`w=1520 h=855`) for YouTube/Vimeo to avoid letterboxing.
 
+**Embed limitations — read before using:**
+YouTube and Vimeo enforce CSP/referrer restrictions that block embedding in many contexts (localhost dev, sandboxed iframes, headless browsers). The embed will show **"Error 153"** or "Video unavailable" instead of playing. Safer alternatives:
+- Use a **`qr`** code pointing to the video URL — always works, audience can scan.
+- Use a **`video`** object with a direct `.mp4` URL (e.g. a Cloudflare Stream or S3 URL).
+- Use a **`frame`** object (`frameKind: "browser"`) with a static screenshot of the video thumbnail + a play-button overlay shape — looks like a video without the iframe restriction.
+
 ---
 
 ## chart
@@ -315,11 +321,31 @@ entity relationships — anything that needs structured connected nodes.
 }
 ```
 
+**Mermaid theme — match the slide's color palette:**
+Mermaid defaults to its own amber/yellow color scheme which often clashes with the slide theme.
+Set the theme via `%%{init: ...}%%` at the top of the source string:
+
+```
+%%{init: {"theme": "base", "themeVariables": {
+  "primaryColor": "#1e3a2f",
+  "primaryTextColor": "#d1fae5",
+  "primaryBorderColor": "#22c55e",
+  "lineColor": "#4ade80",
+  "secondaryColor": "#134e4a",
+  "tertiaryColor": "#0f172a"
+}}}%%
+flowchart LR
+  A[Step 1] --> B[Step 2]
+```
+
+Use the slide theme's hex colors — the `primaryColor` fills node bodies, `primaryBorderColor` is the node border, `lineColor` is the arrow/edge color. Keep `"theme": "base"` so the `themeVariables` override take full effect (other themes ignore variable overrides).
+
 **Tips:**
 - Keep Mermaid diagrams to 6–8 nodes per slide. Dense graphs → split into detail sub-slides.
 - Use `flowchart LR` for process flows (horizontal reads left-to-right naturally).
 - Use `sequenceDiagram` for API interactions, user journeys, multi-actor processes.
 - Wrap long `source` strings as multiline using `\n` — Mermaid requires newlines between statements.
+- Always set a `%%{init: ...}%%` header to match your slide theme; omitting it gives the default amber Mermaid palette.
 
 ---
 

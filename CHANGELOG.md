@@ -3,6 +3,45 @@
 All notable changes to this skill are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.10.0] — 2026-06-28
+
+### Fixed
+
+- **`block_builder.py` — `bullet_list()` two-tier format**: `{"title": "...", "body": "..."}` dict
+  items now render as `• Title: body text` on a single line, not `• Title\n     body` with an
+  indented continuation line that wraps awkwardly. The `: ` separator lets text flow naturally.
+
+### Added
+
+- **`references/objects-guide.md` — embed limitations**: YouTube and Vimeo enforce CSP/referrer
+  restrictions that show "Error 153" in sandboxed iframes and headless browsers. Prefer `qr`
+  (always works), `video` (direct .mp4 URL), or `frame` + thumbnail + play-button overlay.
+  Reserve `embed` for sources that explicitly support iframe embedding (internal dashboards,
+  Figma prototypes, Google Slides "Publish to web").
+- **`references/objects-guide.md` — Mermaid theme config**: Added `%%{init: ...}%%` header
+  pattern so agents can match Mermaid diagram colors to the slide theme (node fill, border,
+  arrows). Default Mermaid palette (amber/yellow) clashes with most custom slide themes.
+- **`SKILL.md` — "Embed Caution" section**: Pre-flight warning about YouTube/Vimeo embed
+  failures, with three always-reliable alternatives (QR, video, frame+thumbnail).
+
+## [1.9.0] — 2026-06-28
+
+### Added
+
+- **`block_builder.py`** — `bullet_list(items, x, y, w, h, numbered=False)` and
+  `numbered_list()`: single text objects for bullet/numbered lists. Replaces the
+  anti-pattern of repeating `card()` for each item (7 cards = 21 objects → 1
+  `bullet_list()` = 1 object). Items can be plain strings or
+  `{"title": "…", "body": "…"}` dicts for two-line entries.
+- **`SKILL.md`**: "Slide Density Rules" section — explicit "≤12 objects per slide,
+  max 14" rule, per-slide image rule (at least 1 image per 3 slides), and
+  "max 4 feature cards per slide" guideline with an anti-pattern table.
+- **`deck_validator.py`**: object density warning in `--strict` mode — flags slides
+  with > 14 objects and suggests `bullet_list()` or `grid()` as the fix.
+- **`references/commands.md`**: documents `bullet_list()` and `numbered_list()`
+  under "List objects" category; clarifies `grid()` column guidance (cols=2,
+  max 4 items for feature grids).
+
 ## [1.7.0] — 2026-06-28
 
 ### Fixed

@@ -74,6 +74,19 @@ The script prints:
 - **Per-slide render URLs** for browser-based screenshot evaluation:
   `https://deck.4hum.ai/slides/<deck-id>/<n>/render`
 
+### Playwright screenshot script (local dev)
+
+`scripts/uat/screenshot_deck.mjs` captures all slides to PNG files:
+
+```bash
+cd scripts/uat
+node screenshot_deck.mjs <deck-id> <slide-count> <output-dir> http://localhost:5177
+```
+
+**Local setup requirements:**
+1. FE dev server running on port 5175 (deck-4hum-ai) with `VITE_AUTH_PROVIDER=uat` and `VITE_UAT_BYPASS_TOKEN=<api-key>` and `VITE_PUBLIC_API_URL=https://open-academy-api-mz4xquo5lq-as.a.run.app`
+2. The script launches Playwright with `--disable-web-security` so the local FE can fetch the production API across origins (the production API's CORS policy allows `deck.4hum.ai` but not localhost).
+
 ### Visual evaluation via browser tools
 
 Each render URL renders a single slide at 1920×1080 with no chrome:
@@ -162,11 +175,16 @@ See `references/image-prompts.md` for proven prompt templates per image type.
 - `table(x, y, w, h, rows)` — 2D list of strings
 - `diagram(x, y, w, h, source)` — Mermaid source string
 
+**List objects (prefer these over repeating card() for 4+ items):**
+- `bullet_list(items, x, y, w, h)` — single text object with "•" bullets; keeps object count low
+- `numbered_list(items, x, y, w, h)` — same but with "1.", "2.", …
+- `items` can be plain strings or `{"title": "…", "body": "…"}` dicts
+
 **Composite layouts:**
-- `card(x, y, w, h, heading, body)` → list of objects
+- `card(x, y, w, h, heading, body)` → list of objects (use max 4 cards/slide)
 - `title_chip(label, x, y, width)`, `portrait_card(…)`, `kpi_card(…)`
 - `process_flow(items, x, y, w, h)`, `comparison_columns(columns, x, y, w, h)`
-- `grid(items, cols, x, y, total_w, total_h)`
+- `grid(items, cols, x, y, total_w, total_h)` — use cols=2 (max 4 items) for feature grids
 
 **Slide structure:**
 - `slide(objects, notes="", speaker_notes="", animate=True)`
