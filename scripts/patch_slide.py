@@ -206,12 +206,16 @@ def main() -> None:
     else:
         has_notes_update = args.notes is not None or args.speaker_notes is not None
         has_narration_update = args.add_narration_track is not None or args.set_narration_tracks is not None
-        # Read stdin only when it is piped (not a TTY). This lets --notes work
-        # standalone without blocking on interactive stdin.
+        # stdin can be used either for object replacement OR for a narration arg that says "-",
+        # but not both at once. If a narration arg claims stdin, skip the object-replacement read.
+        narration_uses_stdin = (
+            args.add_narration_track == "-" or args.set_narration_tracks == "-"
+        )
+        # Read stdin only when it is piped (not a TTY) AND narration isn't consuming it.
         try:
-            piped = not sys.stdin.isatty()
+            piped = not sys.stdin.isatty() and not narration_uses_stdin
         except Exception:
-            piped = True
+            piped = not narration_uses_stdin
 
         raw = sys.stdin.read().strip() if piped else ""
 
