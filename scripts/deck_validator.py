@@ -465,6 +465,13 @@ def _strict_checks(deck_json: Any) -> list[ValidationIssue]:
             slide_path = f"deckJson.deck.sections.{si}.slides.{li}"
             objs = slide.get("objects", [])
 
+            if len(objs) > 14:
+                issues.append(ValidationIssue(
+                    f"{slide_path}.objects",
+                    f"slide {slide_n} has {len(objs)} objects — aim for ≤ 12 (max 14). "
+                    "Use bullet_list() or grid() with ≤ 4 items instead of repeating card() objects.",
+                ))
+
             text_objs = [o for o in objs if o.get("type") == "text"]
             if text_objs and not slide.get("notes") and not slide.get("speakerNotes"):
                 issues.append(ValidationIssue(

@@ -14,7 +14,7 @@ allowed-tools: Bash Read
 metadata:
   platform: deck-4hum-ai
   author: phong.nguyen@4hum.ai
-  version: "1.14.0"
+  version: "1.15.0"
   argument-hint: "<topic or title for the deck>"
 ---
 
@@ -94,7 +94,7 @@ See `examples/*` for a complete example.
    diagrams, sections, and deck envelopes.
 7. **Preflight validate.** Run the local validator and fix every issue:
    ```bash
-   python examples/agent_skills_marketplace.py | python scripts/deck_validator.py
+   python examples/urban_mobility_2030.py | python scripts/deck_validator.py
    ```
    Replace the first command with your own generator. `save_deck.py` also runs
    validation automatically before auth or network calls.
@@ -104,7 +104,7 @@ See `examples/*` for a complete example.
    ```
    Or pipe generator output directly:
    ```bash
-   python examples/agent_skills_marketplace.py | python scripts/save_deck.py "Agent Skills & Skills Marketplace"
+   python examples/urban_mobility_2030.py | python scripts/save_deck.py "Agent Skills & Skills Marketplace"
    ```
    Prints JSON to stdout: `{"deck_id":"...","deck_url":"..."}`. Human-readable
    status lines go to stderr. Parse stdout for the deck ID.

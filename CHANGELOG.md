@@ -3,6 +3,25 @@
 All notable changes to this skill are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.15.0] — 2026-06-29
+
+### Fixed
+
+- **`references/objects-guide.md` — frame `src` must be a static image URL**: Iteration 8
+  (ML Mathematics, slide 6) used a live website URL (`https://teachablemachine.withgoogle.com`)
+  as the frame `src`. The device bezel rendered correctly but the content area was blank —
+  the frame renderer displays a static image, not a live iframe. Added explicit "Critical"
+  callout with correct vs. wrong usage examples. Solution: screenshot the site (or generate
+  a representative image) and use that PNG as `src`.
+
+- **`references/objects-guide.md` — video layer workaround for headless preview**:
+  `VideoRenderer.vue` shows a bare red error box (not the poster) when video fails to load in
+  headless Playwright. Setting `poster` alone does NOT fix this. Verified workaround: layer a
+  matching `image()` object directly behind the video at the same coordinates — in headless the
+  image shows; in the production app the `<video>` overlays and plays. Added code pattern to
+  objects-guide. Also added URL requirements: use CDN URLs you control (Cloudflare Stream,
+  S3, GCS) — archive.org and streaming services have CORS restrictions.
+
 ## [1.14.0] — 2026-06-29
 
 ### Added

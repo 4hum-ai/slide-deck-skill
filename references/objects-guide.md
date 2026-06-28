@@ -164,6 +164,21 @@ files accessible via URL (mp4, webm).
 - For looping background ambience: `autoplay: true, loop: true, muted: true, controls: false`.
 - Set `poster` so slides look good before the video loads.
 
+**Headless / Playwright screenshot limitation:**
+`VideoRenderer.vue` shows a bare red error box (not the poster image) when the video fails to load in headless. To guarantee the slide looks great in screenshots, **layer a matching `image()` object directly behind the video at the same position**:
+
+```python
+# In your generator — image behind video, video on top:
+image(poster_url, x=60, y=200, w=1080, h=620),   # always visible (behind)
+video(src=mp4_url, x=60, y=200, w=1080, h=620,    # overlays when it loads
+      poster=poster_url, controls=True),
+```
+
+In the production app: the `<video>` element loads and plays over the image layer.  
+In headless screenshots: the video errors, the image layer shows — slide looks complete.
+
+**Video URL requirements:** Use direct `.mp4` or `.webm` file URLs from CDNs you control (Cloudflare Stream, S3, GCS). URLs from archive.org, educational sites, or streaming services often have CORS restrictions or require authentication.
+
 ---
 
 ## embed
@@ -435,6 +450,23 @@ image presented in a polaroid or picture-frame style.
 - Use `browser` or `laptop` for web/desktop UI reveals; use `phone` for mobile screenshots.
 - `polaroid` or `pictureClassic` adds visual personality to photo-driven slides.
 - Combine two frames side-by-side (before/after comparison) with an arrow `line` between them.
+
+**Critical — `src` must be a static image URL, not a live website URL.**
+The frame renderer displays a static image (`.png`, `.jpg`) inside the device/browser chrome. It does **not** load a live website inside an iframe. If you pass a live URL like `https://playground.tensorflow.org`, the bezel/chrome renders correctly but the content area will be blank.
+
+To show a real website inside a frame:
+1. Take a screenshot of the site (or use `generate_image.py` to create an on-brand mockup).
+2. Host the screenshot as an image and use that image URL as `src`.
+3. Or use an AI-generated image that depicts the UI, placed as `src`.
+
+```python
+# Correct — static screenshot image:
+frame(x=600, y=160, w=800, h=540, frameKind="browser",
+      src="https://your-api.com/screenshots/app-ui.png")
+
+# Wrong — live URL: bezel renders but content area is blank:
+# frame(..., src="https://playground.tensorflow.org")
+```
 
 ---
 

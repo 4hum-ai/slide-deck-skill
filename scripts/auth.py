@@ -20,8 +20,8 @@ import urllib.request
 import urllib.error
 from pathlib import Path
 
-API_URL = os.environ.get("OPEN_ACADEMY_API_URL", "https://api.open-academy.ai")
-APP_URL = os.environ.get("OPEN_ACADEMY_APP_URL", "https://app.open-academy.ai")
+API_URL = os.environ.get("OPEN_ACADEMY_API_URL", "https://open-academy-api-mz4xquo5lq-as.a.run.app")
+APP_URL = os.environ.get("OPEN_ACADEMY_APP_URL", "https://deck.4hum.ai")
 CONFIG_PATH = Path.home() / ".open-academy" / "config.json"
 
 
