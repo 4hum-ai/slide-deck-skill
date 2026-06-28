@@ -39,6 +39,12 @@ sys.path.insert(0, str(Path(__file__).parent))
 from auth import get_credentials
 from deck_validator import validate_deck, format_validation_errors
 
+# Windows cp1252 guard
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 API_URL = os.environ.get("OPEN_ACADEMY_API_URL", "https://open-academy-api-mz4xquo5lq-as.a.run.app")
 APP_URL = os.environ.get("OPEN_ACADEMY_APP_URL", "https://deck.4hum.ai")
 
@@ -96,7 +102,16 @@ def main() -> None:
         print("Usage: merge_deck.py <deck-id> < patch.json", file=sys.stderr)
         sys.exit(1)
 
-    raw = sys.stdin.read().strip()
+    # Read from stdin, stripping any BOM that PowerShell may inject when using
+    # `echo '{...}' | python ...` (PowerShell outputs UTF-16 by default).
+    raw_bytes = sys.stdin.buffer.read()
+    for bom, enc in [(b'\xff\xfe', 'utf-16-le'), (b'\xfe\xff', 'utf-16-be'), (b'\xef\xbb\xbf', 'utf-8-sig')]:
+        if raw_bytes.startswith(bom):
+            raw = raw_bytes.decode(enc, errors='replace').strip()
+            break
+    else:
+        raw = raw_bytes.decode('utf-8', errors='replace').strip()
+
     if not raw:
         print("Error: pipe a partial deck JSON fragment to stdin", file=sys.stderr)
         sys.exit(1)

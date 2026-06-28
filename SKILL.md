@@ -14,7 +14,7 @@ allowed-tools: Bash Read
 metadata:
   platform: deck-4hum-ai
   author: phong.nguyen@4hum.ai
-  version: "1.3.0"
+  version: "1.4.0"
   argument-hint: "<topic or title for the deck>"
 ---
 
@@ -32,7 +32,7 @@ Load these only when needed:
 - `references/commands.md` - Python script commands, environment variables, helper API.
 
 Use `scripts/block_builder.py` for common block layouts when writing a generator.
-See `examples/agent_skills_marketplace.py` for a complete Python example.
+See `examples/*` for a complete example.
 
 ## Workflow
 
@@ -162,8 +162,6 @@ python scripts/preview_deck.py "<deck-id>" --theme-check
 
 ```bash
 python scripts/auth.py
-python examples/agent_skills_marketplace.py | python scripts/deck_validator.py
-python examples/agent_skills_marketplace.py | python scripts/save_deck.py "Agent Skills & Skills Marketplace"
 python scripts/preview_deck.py "<deck-id>"               # inspect a saved deck
 python my_generator.py | python scripts/preview_deck.py  # inspect before saving
 python scripts/update_deck.py "<deck-id>" < deck.json

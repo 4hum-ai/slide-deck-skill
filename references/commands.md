@@ -60,15 +60,54 @@ Use the returned `file_url` as an image object's `src`.
 # Fetch a saved deck by ID and print a per-slide structural summary:
 python scripts/preview_deck.py "<deck-id>"
 
+# Include WCAG contrast check for the theme:
+python scripts/preview_deck.py "<deck-id>" --theme-check
+
 # Inspect fresh JSON from a generator without saving:
 python my_generator.py | python scripts/preview_deck.py
 ```
 
 The script prints:
-- Theme name
+- Theme name + WCAG contrast report (with `--theme-check`)
 - Per-slide: headline text, object-type counts (e.g. `2×text  1×image  1×chart`)
 - Bounding-box warnings (non-positive sizes, canvas overflow)
-- Edit URL and visual inspection instructions (use `mcp__claude-in-chrome__*` tools)
+- Edit URL
+- **Per-slide render URLs** for browser-based screenshot evaluation:
+  `https://deck.4hum.ai/slides/<deck-id>/<n>/render`
+
+### Visual evaluation via browser tools
+
+Each render URL renders a single slide at 1920×1080 with no chrome:
+
+```
+1. mcp__claude-in-chrome__navigate  → https://deck.4hum.ai/slides/<id>/<n>/render
+2. mcp__claude-in-chrome__javascript_tool → wait for renderReady signal:
+   await new Promise(r => {
+     const iv = setInterval(() => {
+       if (document.body.dataset.renderReady === 'true') { clearInterval(iv); r(); }
+     }, 100)
+   })
+3. mcp__claude-in-chrome__computer  → screenshot
+```
+
+### Windows / PowerShell notes
+
+On Windows, `echo '{...}' | python scripts/merge_deck.py` may fail because
+PowerShell's `echo` outputs UTF-16 (with BOM). The scripts now handle BOMs
+automatically, but if you still hit encoding issues use one of these
+alternatives:
+
+```powershell
+# Option A — write JSON to a UTF-8 temp file:
+Set-Content -Path patch.json -Value '{"deck":{"title":"New"}}' -Encoding utf8
+Get-Content patch.json | python scripts/merge_deck.py "<id>"
+
+# Option B — use Python inline to avoid shell encoding entirely:
+python -c "import sys; sys.stdin = open(0,'rb'); exec(open('scripts/merge_deck.py').read())"
+
+# Option C (simplest) — use Bash tool instead of PowerShell for piping:
+echo '{"deck":{"title":"New"}}' | python scripts/merge_deck.py "<id>"
+```
 
 ## Patch a Single Slide
 

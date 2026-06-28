@@ -27,6 +27,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from auth import get_credentials
 
+# Windows cp1252 guard
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 API_URL = os.environ.get("OPEN_ACADEMY_API_URL", "https://open-academy-api-mz4xquo5lq-as.a.run.app")
 
 

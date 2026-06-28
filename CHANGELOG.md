@@ -3,6 +3,34 @@
 All notable changes to this skill are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.4.0] — 2026-06-28
+
+### Added
+
+- `scripts/patch_slide.py --notes TEXT` and `--speaker-notes TEXT` — update a
+  slide's narration text or presenter notes without touching objects; works
+  standalone or combined with object replacement. stdin is now optional when
+  only notes are being updated.
+- `references/commands.md` — "Visual evaluation via browser tools" section with
+  the exact mcp__claude-in-chrome__ screenshot pattern for render URLs;
+  "Windows / PowerShell notes" section documenting the UTF-16 BOM workaround for
+  `echo '...' | python scripts/merge_deck.py` on PowerShell.
+
+### Fixed
+
+- **Windows encoding bug (critical)**: all scripts crashed on Windows cp1252
+  consoles when printing characters such as `…`, `×`, `⚠`, or `•`. Fixed by
+  adding `sys.stdout/stderr.reconfigure(encoding='utf-8', errors='replace')` at
+  the top of every script (`preview_deck.py`, `patch_slide.py`, `merge_deck.py`,
+  `get_deck.py`).
+- **PowerShell BOM bug in `merge_deck.py`**: `echo '...' | python scripts/merge_deck.py`
+  failed because PowerShell outputs UTF-16 with a BOM. `merge_deck.py` now reads
+  from `sys.stdin.buffer` and strips UTF-16/UTF-8 BOMs automatically before
+  JSON-decoding.
+- `preview_deck.py` now prints per-slide render URLs
+  (`/slides/:deckId/:slideIndex/render`) for visual evaluation via browser tools,
+  replacing the generic "open the Edit URL" instruction.
+
 ## [1.3.0] — 2026-06-28
 
 ### Added

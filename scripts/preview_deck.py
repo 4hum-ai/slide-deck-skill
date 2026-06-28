@@ -24,6 +24,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
+# Windows cp1252 guard — ensure UTF-8 output on all platforms (cp1252 can't
+# encode characters such as ellipsis, times, or check marks used in output).
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 API_URL = os.environ.get("OPEN_ACADEMY_API_URL", "https://open-academy-api-mz4xquo5lq-as.a.run.app")
 APP_URL = os.environ.get("OPEN_ACADEMY_APP_URL", "https://deck.4hum.ai")
 
@@ -246,13 +253,26 @@ def main() -> None:
     if edit_url:
         print(f"\nEdit URL:  {edit_url}")
 
-    print(
-        "\nVisual inspection:"
-        "\n  • Open the Edit URL in a browser to see rendered slides."
-        "\n  • In Claude Code, use the browser tools (mcp__claude-in-chrome__navigate +"
-        "\n    mcp__claude-in-chrome__computer) to screenshot each slide and evaluate"
-        "\n    layout, contrast, and content quality before closing the task."
-    )
+    if deck_id:
+        deck = deck_json.get("deck", deck_json)
+        total_slides = sum(len(s.get("slides", [])) for s in deck.get("sections", []))
+        print("\nSlide render URLs (navigate + screenshot each for visual evaluation):")
+        for n in range(total_slides):
+            print(f"  Slide {n + 1:02d}: {APP_URL}/slides/{deck_id}/{n}/render")
+        print(
+            "\nAgent screenshot pattern (mcp__claude-in-chrome__*):"
+            "\n  1. navigate to the render URL"
+            "\n  2. javascript_tool: await new Promise(r => { const iv = setInterval(() => {"
+            "\n       if (document.body.dataset.renderReady === 'true') { clearInterval(iv); r(); }"
+            "\n     }, 100) })"
+            "\n  3. computer: take screenshot"
+        )
+    else:
+        print(
+            "\nVisual inspection:"
+            "\n  • Save the deck first (save_deck.py), then run preview_deck.py <deck-id>"
+            "\n    to get per-slide render URLs for browser-based screenshot evaluation."
+        )
 
 
 if __name__ == "__main__":

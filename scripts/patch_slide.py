@@ -35,6 +35,12 @@ sys.path.insert(0, str(Path(__file__).parent))
 from auth import get_credentials
 from deck_validator import validate_deck, format_validation_errors
 
+# Windows cp1252 guard
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 API_URL = os.environ.get("OPEN_ACADEMY_API_URL", "https://open-academy-api-mz4xquo5lq-as.a.run.app")
 APP_URL = os.environ.get("OPEN_ACADEMY_APP_URL", "https://deck.4hum.ai")
 
@@ -92,6 +98,10 @@ def main() -> None:
     parser.add_argument("--delete", action="store_true", help="Delete the slide at the given index")
     parser.add_argument("--insert-after", action="store_true", dest="insert_after",
                         help="Insert a new slide after the given index; stdin = full slide JSON object")
+    parser.add_argument("--notes", metavar="TEXT",
+                        help="Set or replace the slide's notes field (TTS / narration text)")
+    parser.add_argument("--speaker-notes", dest="speaker_notes", metavar="TEXT",
+                        help="Set or replace the slide's speakerNotes (presenter-only reminders)")
     args = parser.parse_args()
 
     token, workspace_id = get_credentials()
@@ -132,20 +142,42 @@ def main() -> None:
         print(f"Inserted new slide after index {args.slide_index} in section {si}")
 
     else:
-        raw = sys.stdin.read().strip()
-        if not raw:
-            print("Error: pipe a JSON array of slide objects to stdin", file=sys.stderr)
-            sys.exit(1)
+        has_notes_update = args.notes is not None or args.speaker_notes is not None
+        # Read stdin only when it is piped (not a TTY). This lets --notes work
+        # standalone without blocking on interactive stdin.
         try:
-            new_objects = json.loads(raw)
-        except json.JSONDecodeError as e:
-            print(f"Error: invalid JSON from stdin — {e}", file=sys.stderr)
+            piped = not sys.stdin.isatty()
+        except Exception:
+            piped = True
+
+        raw = sys.stdin.read().strip() if piped else ""
+
+        if raw:
+            try:
+                new_objects = json.loads(raw)
+            except json.JSONDecodeError as e:
+                print(f"Error: invalid JSON from stdin — {e}", file=sys.stderr)
+                sys.exit(1)
+            if not isinstance(new_objects, list):
+                print("Error: stdin must be a JSON array of slide objects", file=sys.stderr)
+                sys.exit(1)
+            deck["sections"][si]["slides"][li]["objects"] = new_objects
+            print(f"Replaced {len(new_objects)} object(s) on slide {args.slide_index} (section {si}, slide {li})")
+        elif not has_notes_update:
+            print(
+                "Error: pipe a JSON array of slide objects to stdin, or use --notes / --speaker-notes for a notes-only update",
+                file=sys.stderr,
+            )
             sys.exit(1)
-        if not isinstance(new_objects, list):
-            print("Error: stdin must be a JSON array of slide objects", file=sys.stderr)
-            sys.exit(1)
-        deck["sections"][si]["slides"][li]["objects"] = new_objects
-        print(f"Replaced {len(new_objects)} object(s) on slide {args.slide_index} (section {si}, slide {li})")
+
+    # Apply notes updates (works alone or combined with object replacement).
+    if not args.delete and not args.insert_after:
+        if args.notes is not None:
+            deck["sections"][si]["slides"][li]["notes"] = args.notes
+            print(f"Updated notes on slide {args.slide_index}")
+        if args.speaker_notes is not None:
+            deck["sections"][si]["slides"][li]["speakerNotes"] = {"content": args.speaker_notes}
+            print(f"Updated speakerNotes on slide {args.slide_index}")
 
     issues = validate_deck(deck_json)
     if issues:
