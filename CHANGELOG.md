@@ -3,6 +3,49 @@
 All notable changes to this skill are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.7.0] — 2026-06-28
+
+### Fixed
+
+- **`generate_image.py`, `save_deck.py`, `update_deck.py`**: human-readable
+  status lines now go to `stderr`; only the JSON result object goes to
+  `stdout`. This prevents `"Image generated: ..."` and `"Deck saved: ..."`
+  strings from corrupting downstream JSON parsing when scripts are piped.
+- **`generate_image.py`, `save_deck.py`, `update_deck.py`**: added
+  `sys.stdout/stderr.reconfigure(encoding="utf-8")` guard (already present in
+  the other scripts) so Windows cp1252 doesn't corrupt non-ASCII output.
+- **`deck_validator.py`**: custom theme tokens (colors defined in
+  `theme.colors` beyond the standard set) no longer trigger a validation error.
+  `validate_deck()` now extracts the deck's own token names and allows them in
+  all color fields — enabling themes with custom palette entries like
+  `"highlight"` or `"gradientStart"`.
+
+### Added
+
+- **`block_builder.py`** — `light_corporate_theme(overrides=None)`: a
+  ready-to-call light-background preset matching the Light Corporate JSON
+  example in `references/theme-presets.md`. Accepts the same `overrides` dict
+  as `dark_tech_theme()`.
+- **`block_builder.py`** — `slide()` now accepts `animate=True` keyword
+  argument. Pass `animate=False` to produce a slide with an empty animations
+  list, suitable for reference-style documents where entrance effects are
+  distracting.
+- **`references/commands.md`**: token cost guide for `get_deck.py` modes
+  (outline ≈ 200, slide ≈ 800, full deck ≈ 3000–8000 tokens).
+
+### Changed
+
+- **`references/commands.md`**: removed the dangerous "Option B" (Python
+  `exec()` on file content) from the Windows PowerShell stdin workarounds.
+  Option A (Bash tool) is now the recommended path; Option B is a safe
+  `Get-Content -Raw` temp-file approach.
+- **`references/theme-presets.md`**: added a note that both presets are
+  callable as `dark_tech_theme()` / `light_corporate_theme()` in
+  `block_builder.py` with an `overrides` dict.
+- **`SKILL.md`**: step 4 (theme design) now mentions the two callable helpers
+  as starting points; step 5 (image generation) and step 8 (save) clarify the
+  stdout-only JSON output contract.
+
 ## [1.6.0] — 2026-06-28
 
 ### Changed

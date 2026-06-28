@@ -33,10 +33,9 @@ python examples/agent_skills_marketplace.py | python scripts/deck_validator.py
 python scripts/save_deck.py "My Deck Title" < deck.json
 ```
 
-The script prints:
+Prints JSON to stdout (human-readable lines go to stderr):
 
 ```text
-Deck saved: https://deck.4hum.ai/app/decks/<id>/edit
 {"deck_id":"<id>","deck_url":"https://deck.4hum.ai/app/decks/<id>/edit"}
 ```
 
@@ -94,19 +93,16 @@ Each render URL renders a single slide at 1920×1080 with no chrome:
 
 On Windows, `echo '{...}' | python scripts/merge_deck.py` may fail because
 PowerShell's `echo` outputs UTF-16 (with BOM). The scripts now handle BOMs
-automatically, but if you still hit encoding issues use one of these
-alternatives:
+automatically, but if you still hit encoding issues:
 
 ```powershell
-# Option A — write JSON to a UTF-8 temp file:
-Set-Content -Path patch.json -Value '{"deck":{"title":"New"}}' -Encoding utf8
-Get-Content patch.json | python scripts/merge_deck.py "<id>"
-
-# Option B — use Python inline to avoid shell encoding entirely:
-python -c "import sys; sys.stdin = open(0,'rb'); exec(open('scripts/merge_deck.py').read())"
-
-# Option C (simplest) — use Bash tool instead of PowerShell for piping:
+# Option A (recommended) — use Bash tool instead of PowerShell for piping:
+# In Claude Code, prefix with `bash -c` or use the Bash tool directly.
 echo '{"deck":{"title":"New"}}' | python scripts/merge_deck.py "<id>"
+
+# Option B — write JSON to a UTF-8 temp file then pipe:
+Set-Content -Path patch.json -Value '{"deck":{"title":"New"}}' -Encoding utf8
+Get-Content -Raw patch.json | python scripts/merge_deck.py "<id>"
 ```
 
 ## Patch a Single Slide
@@ -148,12 +144,15 @@ See `references/image-prompts.md` for proven prompt templates per image type.
 
 `scripts/block_builder.py` includes schema-safe block builders for:
 
-- `dark_tech_theme`
+- `dark_tech_theme`, `light_corporate_theme` — ready-to-customize theme presets
 - `text`, `rich_text`, `shape`, `line`, `image`
 - `chart`, `table`, `diagram`
 - `card`, `title_chip`, `process_flow`, `comparison_columns`
 - `portrait_card`, `kpi_card`, `grid`
-- `slide`, `section`, `deck`
+- `slide(objects, animate=True)`, `section`, `deck`
+
+Pass `animate=False` to `slide()` for reference-style decks where entrance
+animations would be distracting.
 
 Use the example generator as a template:
 

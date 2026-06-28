@@ -20,6 +20,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from auth import get_credentials
 
+# Windows cp1252 guard
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 API_URL = os.environ.get("OPEN_ACADEMY_API_URL", "https://open-academy-api-mz4xquo5lq-as.a.run.app")
 
 
@@ -74,7 +80,7 @@ def main():
         print(f"Error: unexpected response: {result}", file=sys.stderr)
         sys.exit(1)
 
-    print(f"Image generated: {file_url}")
+    print(f"Image generated: {file_url}", file=sys.stderr)
     print(json.dumps({"media_id": media_id, "file_url": file_url}))
 
 

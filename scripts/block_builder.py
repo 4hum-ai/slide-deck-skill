@@ -50,6 +50,43 @@ def dark_tech_theme(overrides: dict | None = None) -> dict:
     return theme
 
 
+def light_corporate_theme(overrides: dict | None = None) -> dict:
+    overrides = overrides or {}
+    colors = {
+        "background": "#ffffff",
+        "surface": "#f8fafc",
+        "foreground": "#0f172a",
+        "mutedForeground": "#64748b",
+        "primary": "#2563eb",
+        "primaryForeground": "#ffffff",
+        "accent": "#f59e0b",
+        "accentForeground": "#000000",
+        "border": "#e2e8f0",
+        "success": "#16a34a",
+        "warning": "#d97706",
+        "destructive": "#dc2626",
+    }
+    colors.update(overrides.get("colors", {}))
+    text_styles = {
+        "title": {"fontFamily": "heading", "fontSize": 72, "fontWeight": 700, "color": token("foreground")},
+        "subtitle": {"fontFamily": "body", "fontSize": 36, "fontWeight": 400, "color": token("mutedForeground")},
+        "heading": {"fontFamily": "heading", "fontSize": 48, "fontWeight": 700, "color": token("foreground")},
+        "body": {"fontFamily": "body", "fontSize": 28, "fontWeight": 400, "color": token("foreground")},
+        "caption": {"fontFamily": "body", "fontSize": 20, "fontWeight": 400, "color": token("mutedForeground")},
+        "code": {"fontFamily": "mono", "fontSize": 22, "fontWeight": 400, "color": token("primary")},
+    }
+    text_styles.update(overrides.get("textStyles", {}))
+    theme = {
+        "id": _id(),
+        "name": "Light Corporate",
+        "fonts": {"display": "Inter", "heading": "Inter", "body": "Inter", "mono": "JetBrains Mono"},
+        "colors": colors,
+        "textStyles": text_styles,
+    }
+    theme.update(overrides.get("theme", {}))
+    return theme
+
+
 def text(role: str, x: float, y: float, width: float, height: float, content, **options) -> dict:
     return {
         "id": _id(),
@@ -212,12 +249,10 @@ def title_chip(label: str, x: float = 92, y: float = 74, width: float = 300) -> 
 
 
 def slide(objects: list[dict], notes: str = "", speaker_notes: str = "", **options) -> dict:
+    animate = options.get("animate", True)
     animatable = [obj for obj in objects if obj.get("type") != "image"][: options.get("max_animations", 8)]
-    result = {
-        "id": _id(),
-        "background": options.get("background", {"kind": "solid", "color": token("background")}),
-        "objects": objects,
-        "animations": [
+    animations = (
+        [
             {
                 "id": _id(),
                 "targetId": obj["id"],
@@ -229,7 +264,15 @@ def slide(objects: list[dict], notes: str = "", speaker_notes: str = "", **optio
                 "easing": "easeOut",
             }
             for index, obj in enumerate(animatable)
-        ],
+        ]
+        if animate
+        else []
+    )
+    result = {
+        "id": _id(),
+        "background": options.get("background", {"kind": "solid", "color": token("background")}),
+        "objects": objects,
+        "animations": animations,
         "transitions": options.get("transitions", {"effect": "fade", "durationMs": 400}),
     }
     if notes:

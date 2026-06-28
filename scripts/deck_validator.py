@@ -81,6 +81,10 @@ VALID_COLOR_TOKENS = {
 }
 HEX_RE = re.compile(r"^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$")
 
+# Populated by validate_deck() with the custom token names defined in theme.colors.
+# This allows custom tokens (e.g. "highlight", "gradientStart") to pass validation.
+_deck_custom_tokens: frozenset = frozenset()
+
 
 @dataclass
 class ValidationIssue:
@@ -126,7 +130,7 @@ def _require_number(parent: dict[str, Any], key: str, path: str, issues: list[Va
 def _validate_color(value: Any, path: str, issues: list[ValidationIssue], *, allow_hex: bool = False) -> None:
     if isinstance(value, dict):
         token = value.get("token")
-        if token not in VALID_COLOR_TOKENS:
+        if token not in VALID_COLOR_TOKENS and token not in _deck_custom_tokens:
             _add(issues, path, "must be a theme token reference such as {'token': 'foreground'}")
         return
     if isinstance(value, str) and allow_hex and HEX_RE.match(value):
@@ -345,9 +349,15 @@ def _validate_theme(theme: Any, path: str, issues: list[ValidationIssue]) -> Non
 
 
 def validate_deck(deck_json: Any) -> list[ValidationIssue]:
+    global _deck_custom_tokens
     issues: list[ValidationIssue] = []
     if not _require_dict(deck_json, "deckJson", issues):
         return issues
+
+    # Collect the deck's own theme token names so custom tokens pass color validation.
+    _deck_custom_tokens = frozenset(
+        (deck_json.get("deck") or {}).get("theme", {}).get("colors", {}).keys()
+    )
 
     if deck_json.get("schema") != "open-academy.slide-scene-graph":
         _add(issues, "deckJson.schema", "must be 'open-academy.slide-scene-graph'")

@@ -18,6 +18,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from auth import get_credentials
 
+# Windows cp1252 guard
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 API_URL = os.environ.get("OPEN_ACADEMY_API_URL", "https://open-academy-api-mz4xquo5lq-as.a.run.app")
 APP_URL = os.environ.get("OPEN_ACADEMY_APP_URL", "https://deck.4hum.ai")
 
@@ -75,7 +81,7 @@ def main():
 
     out_id = result.get("id") or deck_id
     deck_url = f"{APP_URL}/app/decks/{out_id}/edit"
-    print(f"Deck updated: {deck_url}")
+    print(f"Deck updated: {deck_url}", file=sys.stderr)
     print(json.dumps({"deck_id": out_id, "deck_url": deck_url}))
 
 

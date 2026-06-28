@@ -25,6 +25,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 from auth import get_credentials
+
+# Windows cp1252 guard
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 from deck_validator import format_validation_errors, validate_deck
 
 API_URL = os.environ.get("OPEN_ACADEMY_API_URL", "https://open-academy-api-mz4xquo5lq-as.a.run.app")
@@ -152,7 +158,7 @@ def main():
         sys.exit(1)
 
     deck_url = f"{APP_URL}/app/decks/{deck_id}/edit"
-    print(f"Deck saved: {deck_url}")
+    print(f"Deck saved: {deck_url}", file=sys.stderr)
     print(json.dumps({"deck_id": deck_id, "deck_url": deck_url}))
 
 

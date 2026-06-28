@@ -51,9 +51,12 @@ See `examples/*` for a complete example.
    confirm the number. Cite the source URL in `speakerNotes`. This is narrower
    than step 1 — you already know what you need; now you're verifying it.
 4. **Design a custom theme.** With the topic, plan, and facts in hand, open
-   `references/theme-presets.md` and use its two examples as structural
-   references — not a pick list. Create a new theme object that fits the
-   topic, audience, and emotional tone established in steps 1–3:
+   `references/theme-presets.md`. Two ready-to-call helpers exist —
+   `dark_tech_theme()` and `light_corporate_theme()` in `block_builder.py` —
+   use them as starting points and pass `overrides` to customize colors and
+   fonts, or build a fully custom theme using the structural reference. Create a
+   theme that fits the topic, audience, and emotional tone established in steps
+   1–3:
 
    - **Color psychology**: blue/indigo = trust/tech, green = growth/nature,
      orange = energy/creativity, purple = innovation/bold, neutral dark = minimal
@@ -74,7 +77,9 @@ See `examples/*` for a complete example.
 5. **Generate images when useful.** Use `scripts/generate_image.py` or the
    available image tool before writing final `deckJson`. Collect `file_url`
    values and use them as image `src` fields. Use deterministic `picsum.photos`
-   URLs only for quick drafts or non-critical placeholders.
+   URLs only for quick drafts or non-critical placeholders. The script prints
+   JSON to stdout only — human-readable lines go to stderr, so you can safely
+   pipe or capture stdout without parsing interference.
 6. **Generate deck JSON.** Use the slide-scene-graph envelope and object shapes
    in `references/scene-graph.md`. Prefer `scripts/block_builder.py` for
    schema-safe blocks: cards, portrait cards, KPI cards, grids, lines, tables,
@@ -93,6 +98,8 @@ See `examples/*` for a complete example.
    ```bash
    python examples/agent_skills_marketplace.py | python scripts/save_deck.py "Agent Skills & Skills Marketplace"
    ```
+   Prints JSON to stdout: `{"deck_id":"...","deck_url":"..."}`. Human-readable
+   status lines go to stderr. Parse stdout for the deck ID.
 9. **Preview and evaluate.** After saving, use `scripts/preview_deck.py` to
    capture screenshots of the rendered slides. Review each slide image; fix
    layout, contrast, or content issues before delivering to the user.
@@ -145,7 +152,7 @@ Prefer targeted scripts over full-deck regeneration — the agent only reads and
 writes the affected slice, saving both input and output tokens:
 
 ```bash
-# 1. Read only what you need:
+# 1. Read only what you need (cost guide: outline ≈ 200 tokens, slide ≈ 800 tokens, full deck ≈ 3000–8000 tokens):
 python scripts/get_deck.py "<deck-id>" --outline        # compact section/slide index
 python scripts/get_deck.py "<deck-id>" --slide 7        # one slide's full JSON
 python scripts/get_deck.py "<deck-id>" --theme          # theme object only

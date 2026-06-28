@@ -42,6 +42,11 @@ Choose display/heading fonts to match the emotional register of the topic:
 - Minimal / design → Inter Light or Raleway, large whitespace
 - Warm / education → Georgia display+body (same family = cohesion)
 
+Both themes are available as Python helpers in `block_builder.py`:
+`dark_tech_theme()` and `light_corporate_theme()`. Both accept an `overrides`
+dict with `colors`, `textStyles`, and top-level `theme` keys to customize
+without rewriting the full object.
+
 ## Dark Tech
 
 ```json
