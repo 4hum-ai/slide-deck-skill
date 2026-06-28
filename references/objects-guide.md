@@ -181,6 +181,116 @@ In headless screenshots: the video errors, the image layer shows — slide looks
 
 ---
 
+## audio
+
+**When:** Adding background music, sound effects, or a narration track as a
+canvas object. Unlike `narrationTracks` (which are timeline-synchronized), an
+`audio` object lives in the slide's object list and can be positioned/sized on
+the canvas (the controls bar renders at those coordinates).
+
+```json
+{
+  "id": "<uuid>", "type": "audio",
+  "x": 80, "y": 960, "width": 400, "height": 50,
+  "src": "https://storage.googleapis.com/…/narration-slide-1.mp3",
+  "autoplay": false,
+  "loop": false,
+  "controls": true
+}
+```
+
+**Fields:**
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `src` | string | — | Required. MP3 / WAV / OGG URL. |
+| `autoplay` | boolean | `false` | Plays as soon as the slide loads. |
+| `loop` | boolean | `false` | Loops the audio. |
+| `muted` | boolean | `false` | |
+| `controls` | boolean | `false` | Show native HTML5 audio controls bar. |
+
+**Tips:**
+- For narration: `autoplay: true, controls: false, loop: false`. Listeners hear the voice-over without needing to click play.
+- For background music: `autoplay: true, loop: true, muted: false`. Keep volume low — there is no volume field; mix the audio at the source.
+- Use `narrationTracks` instead if you need timeline-based sync or avatar overlay rendering.
+
+**Generating audio with `generate_audio.py`:**
+```python
+# 1. Generate narration audio and pipe directly to a canvas audio object:
+import subprocess, json
+result = subprocess.run(
+    ["python", "scripts/generate_audio.py", "Welcome to this slide.", "--default-voice"],
+    capture_output=True, text=True, check=True
+)
+audio_data = json.loads(result.stdout)
+# audio_data = {"audio_url": "...", "duration_ms": 4200, ...}
+
+# 2. Use the audio_url as an audio object:
+objects.append({
+    "id": str(uuid4()), "type": "audio",
+    "x": 80, "y": 960, "width": 400, "height": 50,
+    "src": audio_data["audio_url"],
+    "autoplay": True, "controls": False,
+})
+```
+
+---
+
+## narrationTracks
+
+`narrationTracks` is a **slide-level field** (not an object in the canvas), attached directly to the slide dict. It holds a list of timeline-synchronized audio/video narration entries that the playback engine controls independently of the canvas.
+
+**When to use:** TTS narration you want synchronized with slide transitions, avatar overlay videos, or pre-recorded commentary. Use canvas `audio` objects instead when you just need a simple audio player control visible on the slide.
+
+```json
+{
+  "id": "<uuid>",
+  "narrationTracks": [
+    {
+      "id": "<uuid>",
+      "kind": "audio",
+      "url": "https://storage.googleapis.com/…/narration.mp3",
+      "startMs": 0,
+      "durationMs": 4800,
+      "source": "tts",
+      "voiceId": "<voice-uuid>",
+      "textHash": "abc123"
+    }
+  ],
+  "objects": [ … ]
+}
+```
+
+**NarrationTrack fields:**
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `id` | string | Yes | UUID |
+| `kind` | `"audio"` \| `"video"` | Yes | `audio` for TTS/music; `video` for avatar overlay |
+| `url` | string | Yes | MP3/WAV/MP4 URL |
+| `startMs` | number | Yes | Milliseconds from slide start to begin playback |
+| `durationMs` | number | No | Length of the clip in ms (from generate_audio.py output) |
+| `source` | `"tts"` \| `"recorded"` | No | Documents how it was created |
+| `voiceId` | string | No | Voice UUID used for TTS generation |
+| `textHash` | string | No | Hash of the narration text (dedup / cache) |
+| `layout` | `"avatar"` \| `"stage"` | No | For `kind:"video"` avatar overlays |
+| `position` | `"bottom-right"` etc. | No | Corner for avatar video |
+| `shape` | `"circle"` \| `"square"` \| `"rectangle"` | No | Avatar clip shape |
+| `size` | number | No | Avatar size in px |
+
+**Attaching a NarrationTrack via `patch_slide.py`:**
+```bash
+# Generate audio and pipe directly to patch_slide:
+python scripts/generate_audio.py "This slide covers quantum entanglement." --default-voice | \
+  python scripts/patch_slide.py <deck-id> 2 --add-narration-track -
+
+# Or save to file and attach:
+python scripts/generate_audio.py "Narration text…" --voice-id <uuid> > audio.json
+python scripts/patch_slide.py <deck-id> 2 --add-narration-track audio.json
+```
+
+`patch_slide.py` auto-converts `generate_audio.py` output (`{audio_url, duration_ms, voice_id, text_hash}`) into a properly structured `NarrationTrack` — you don't need to reshape the JSON manually.
+
+---
+
 ## embed
 
 **When:** Embedding YouTube or Vimeo videos by URL; embedding any external web

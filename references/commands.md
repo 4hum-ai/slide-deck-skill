@@ -96,6 +96,63 @@ objects = [
 
 Rate limit: allow ~30s between `generate_video` calls to avoid 429 errors.
 
+## Generate Audio
+
+```bash
+# List available voices first:
+python scripts/generate_audio.py --list-voices
+
+# Generate narration with a specific voice:
+python scripts/generate_audio.py "Quantum entanglement links two particles." --voice-id <uuid>
+
+# Use the first available system voice (quick prototyping):
+python scripts/generate_audio.py "Text here." --default-voice
+
+# Read from stdin (long scripts):
+echo "Long narration text…" | python scripts/generate_audio.py --voice-id <uuid>
+
+# Speed control (0.5 = slow, 1.0 = normal, 2.0 = fast):
+python scripts/generate_audio.py "Text." --voice-id <uuid> --speed 0.85
+```
+
+Prints JSON to stdout: `{"audio_url":"...","duration_ms":4800,"voice_id":"...","text_hash":"..."}`
+
+**Attaching to a slide (two patterns):**
+
+Pipe directly to `patch_slide.py` — `patch_slide` auto-converts the audio output format to a `NarrationTrack`:
+```bash
+python scripts/generate_audio.py "Slide 2 narration." --default-voice | \
+  python scripts/patch_slide.py <deck-id> 1 --add-narration-track -
+```
+
+Save and attach in two steps:
+```bash
+python scripts/generate_audio.py "Narration…" --voice-id <uuid> > audio.json
+python scripts/patch_slide.py <deck-id> 1 --add-narration-track audio.json
+```
+
+**Text limits:** 1–8 000 characters per call. For longer narration, split across slides and generate separately.
+
+**Typical narration workflow:**
+```python
+# In your generator — compute narration text per slide:
+NARRATIONS = [
+    "Welcome to the deck. Today we cover quantum computing fundamentals.",
+    "A qubit differs from a classical bit because it can exist in superposition.",
+    "Quantum entanglement links two particles regardless of distance.",
+]
+
+# After saving the deck, attach narration tracks:
+result = save_deck(deck)
+deck_id = result["deck_id"]
+
+for slide_idx, narration_text in enumerate(NARRATIONS):
+    audio = run(f'python scripts/generate_audio.py "{narration_text}" --default-voice')
+    audio_data = json.loads(audio)
+    run(f"python scripts/patch_slide.py {deck_id} {slide_idx} "
+        f"--add-narration-track '{json.dumps(audio_data)}'")
+```
+
 ## Preview / Inspect
 
 ```bash
@@ -208,6 +265,7 @@ See `references/image-prompts.md` for proven prompt templates per image type.
 - `shape(x, y, w, h, fill_token)`, `line(x, y, w)`
 - `image(seed_or_url, x, y, w, h)`
 - `video(src, x, y, w, h)` — native video file
+- `audio(src, x, y, w, h)` — audio player control (for canvas-visible audio; use `narrationTracks` for timeline-sync)
 - `embed(url, x, y, w, h)` — YouTube / Vimeo / iframe
 - `frame(x, y, w, h, frameKind=…, src=…)` — device/picture-frame mockup
 - `qr_code(url, x, y, size)`, `qr_vcard(contact, x, y, size)` — QR codes

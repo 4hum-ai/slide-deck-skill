@@ -79,6 +79,51 @@ def _put(deck_id: str, deck_json: dict, token: str, workspace_id: str) -> None:
         raise RuntimeError(f"HTTP {e.code}: {e.read().decode(errors='replace')}") from e
 
 
+def _load_json_arg(value: str) -> object:
+    """Load a JSON arg that may be a raw string, a file path, or '-' for stdin."""
+    if value == "-":
+        raw = sys.stdin.read().strip()
+    elif value.endswith(".json") or (value.startswith("{") is False and value.startswith("[") is False):
+        p = Path(value)
+        if p.exists():
+            raw = p.read_text(encoding="utf-8").strip()
+        else:
+            raw = value
+    else:
+        raw = value
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError as e:
+        print(f"Error: invalid JSON — {e}\nInput was: {raw[:120]}", file=sys.stderr)
+        sys.exit(1)
+
+
+def _to_narration_track(obj: dict) -> dict:
+    """Convert a generate_audio.py output dict into a NarrationTrack if needed."""
+    import uuid as _uuid
+    if "audio_url" in obj and "url" not in obj:
+        # generate_audio.py format → NarrationTrack
+        track = {
+            "id": str(_uuid.uuid4()),
+            "kind": "audio",
+            "url": obj["audio_url"],
+            "startMs": 0,
+            "source": "tts",
+        }
+        if obj.get("duration_ms") is not None:
+            track["durationMs"] = obj["duration_ms"]
+        if obj.get("voice_id"):
+            track["voiceId"] = obj["voice_id"]
+        if obj.get("text_hash"):
+            track["textHash"] = obj["text_hash"]
+        return track
+    # Already a NarrationTrack shape — ensure it has an id
+    if "id" not in obj:
+        import uuid as _uuid
+        obj = dict(obj, id=str(_uuid.uuid4()))
+    return obj
+
+
 def _all_slides(deck_json: dict) -> list[tuple[int, int]]:
     """Return (section_idx, slide_idx_within_section) for every slide in order."""
     result = []
@@ -102,6 +147,23 @@ def main() -> None:
                         help="Set or replace the slide's notes field (TTS / narration text)")
     parser.add_argument("--speaker-notes", dest="speaker_notes", metavar="TEXT",
                         help="Set or replace the slide's speakerNotes (presenter-only reminders)")
+    parser.add_argument(
+        "--add-narration-track", dest="add_narration_track", metavar="JSON_OR_FILE_OR_-",
+        help=(
+            "Append a NarrationTrack to the slide's narrationTracks array. "
+            "Accepts: a JSON string, a path to a JSON file, or '-' to read from stdin. "
+            "If the value looks like a generate_audio.py output object, it is automatically "
+            "converted to a NarrationTrack ({audio_url,duration_ms,voice_id} → {kind,url,durationMs,voiceId,source:'tts'}). "
+            "Example: --add-narration-track '{\"kind\":\"audio\",\"url\":\"...\",\"startMs\":0}'"
+        ),
+    )
+    parser.add_argument(
+        "--set-narration-tracks", dest="set_narration_tracks", metavar="JSON_OR_FILE_OR_-",
+        help=(
+            "Replace the slide's entire narrationTracks array. "
+            "Accepts: a JSON array string, a file path, or '-' for stdin."
+        ),
+    )
     args = parser.parse_args()
 
     token, workspace_id = get_credentials()
@@ -143,6 +205,7 @@ def main() -> None:
 
     else:
         has_notes_update = args.notes is not None or args.speaker_notes is not None
+        has_narration_update = args.add_narration_track is not None or args.set_narration_tracks is not None
         # Read stdin only when it is piped (not a TTY). This lets --notes work
         # standalone without blocking on interactive stdin.
         try:
@@ -163,21 +226,45 @@ def main() -> None:
                 sys.exit(1)
             deck["sections"][si]["slides"][li]["objects"] = new_objects
             print(f"Replaced {len(new_objects)} object(s) on slide {args.slide_index} (section {si}, slide {li})")
-        elif not has_notes_update:
+        elif not has_notes_update and not has_narration_update:
             print(
-                "Error: pipe a JSON array of slide objects to stdin, or use --notes / --speaker-notes for a notes-only update",
+                "Error: pipe a JSON array of slide objects to stdin, "
+                "or use --notes / --speaker-notes / --add-narration-track / --set-narration-tracks for a field-only update",
                 file=sys.stderr,
             )
             sys.exit(1)
 
-    # Apply notes updates (works alone or combined with object replacement).
+    # Apply notes and narration track updates (work alone or combined with object replacement).
     if not args.delete and not args.insert_after:
+        slide = deck["sections"][si]["slides"][li]
+
         if args.notes is not None:
-            deck["sections"][si]["slides"][li]["notes"] = args.notes
+            slide["notes"] = args.notes
             print(f"Updated notes on slide {args.slide_index}")
         if args.speaker_notes is not None:
-            deck["sections"][si]["slides"][li]["speakerNotes"] = {"content": args.speaker_notes}
+            slide["speakerNotes"] = {"content": args.speaker_notes}
             print(f"Updated speakerNotes on slide {args.slide_index}")
+
+        if args.add_narration_track is not None:
+            raw_track = _load_json_arg(args.add_narration_track)
+            if not isinstance(raw_track, dict):
+                print("Error: --add-narration-track must be a JSON object", file=sys.stderr)
+                sys.exit(1)
+            track = _to_narration_track(raw_track)
+            if "narrationTracks" not in slide:
+                slide["narrationTracks"] = []
+            slide["narrationTracks"].append(track)
+            preview = track.get("url", "?")[:60]
+            print(f"Added {track.get('kind', 'audio')} narration track to slide {args.slide_index}: {preview}…")
+
+        if args.set_narration_tracks is not None:
+            raw_tracks = _load_json_arg(args.set_narration_tracks)
+            if not isinstance(raw_tracks, list):
+                print("Error: --set-narration-tracks must be a JSON array", file=sys.stderr)
+                sys.exit(1)
+            tracks = [_to_narration_track(t) if isinstance(t, dict) else t for t in raw_tracks]
+            slide["narrationTracks"] = tracks
+            print(f"Set {len(tracks)} narration track(s) on slide {args.slide_index}")
 
     issues = validate_deck(deck_json)
     if issues:

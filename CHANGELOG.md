@@ -3,6 +3,35 @@
 All notable changes to this skill are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.17.0] — 2026-06-29
+
+### Added
+
+- **`scripts/generate_audio.py`**: New script for AI narration / TTS audio generation.
+  Calls `GET /api/media/voices` to list available voices and `POST /api/media/voices/:id/generate`
+  (synchronous — no polling) to generate audio. Flags: `--list-voices`, `--voice-id <uuid>`,
+  `--default-voice` (uses first available system voice), `--speed 0.5–2.0`, and `--deck-id` /
+  `--slide-id` for analytics association. Reads text from a positional argument or stdin (pipes).
+  Prints `{"audio_url":"...","duration_ms":N,"voice_id":"...","text_hash":"..."}` to stdout,
+  compatible with `patch_slide.py --add-narration-track` for zero-reshaping piping.
+
+- **`scripts/patch_slide.py` — narration track operations**:
+  - `--add-narration-track JSON_OR_FILE_OR_-`: appends a `NarrationTrack` to `slide.narrationTracks[]`.
+    Accepts a JSON string, a file path to a `.json` file, or `-` for stdin. Auto-converts
+    `generate_audio.py` output format (`{audio_url, duration_ms, voice_id, text_hash}`) to a
+    proper `NarrationTrack` (`{id, kind:"audio", url, startMs:0, durationMs, source:"tts", voiceId, textHash}`).
+  - `--set-narration-tracks JSON_OR_FILE_OR_-`: replaces the slide's entire `narrationTracks` array.
+  - Narration track operations work standalone (no stdin objects required) or combined with object replacement.
+
+- **`references/objects-guide.md` — `audio` object type and `narrationTracks` section**:
+  Full field reference for the `audio` canvas object type (src, autoplay, loop, muted, controls)
+  and a new `narrationTracks` slide-level field section showing the complete `NarrationTrack` schema,
+  the `patch_slide.py --add-narration-track` workflow, and the pipe pattern from `generate_audio.py`.
+
+- **`references/commands.md` — "Generate Audio" section**: Full voice discovery and generation usage,
+  both `--voice-id` and `--default-voice` modes, pipe-to-patch-slide pattern, and a multi-slide
+  narration loop template. Also added `audio(src, x, y, w, h)` to the Python Layout Helpers list.
+
 ## [1.16.0] — 2026-06-29
 
 ### Added
