@@ -24,7 +24,8 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "keywords": ["mcp", "claude", "skill", "slides", "deck", "presentation", "ai", "claude-skill"],
+  "keywords": ["mcp", "mcp-server", "claude", "claude-skill", "skill", "slides", "deck", "presentation", "ai"],
+  "mcpName": "io.github.4hum-ai/slide-deck-skill",
   "license": "MIT",
   "repository": {
     "type": "git",

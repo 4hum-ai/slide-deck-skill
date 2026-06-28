@@ -1,0 +1,30 @@
+# Smithery marketplace metadata
+# https://smithery.ai
+
+name: slide-deck-skill
+description: MCP server for creating AI-powered slide decks on deck-4hum-ai / open-academia.com
+version: "1.2.0"
+license: MIT
+
+startCommand:
+  type: npm
+  package: "@4humai/slide-deck-skill"
+  arguments: []
+
+config:
+  OPEN_ACADEMY_TOKEN:
+    type: string
+    description: "API token from ~/.open-academy/config.json (run `npx @4humai/slide-deck-skill auth` once)"
+    required: true
+  OPEN_ACADEMY_WORKSPACE_ID:
+    type: string
+    description: "Workspace UUID from ~/.open-academy/config.json"
+    required: true
+  OPEN_ACADEMY_API_URL:
+    type: string
+    description: "API base URL (default: https://open-academy-api-mz4xquo5lq-as.a.run.app)"
+    required: false
+  OPEN_ACADEMY_APP_URL:
+    type: string
+    description: "App base URL (default: https://deck.4hum.ai)"
+    required: false

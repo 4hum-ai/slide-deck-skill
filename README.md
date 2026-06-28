@@ -61,6 +61,17 @@ Credentials are saved to `~/.open-academy/config.json`.
 | `get_deck` | Fetch a deck's full JSON for inspection |
 | `delete_deck` | Delete a deck |
 
+## Marketplace listings
+
+| Marketplace | Link |
+|---|---|
+| npm | [@4humai/slide-deck-skill](https://www.npmjs.com/package/@4humai/slide-deck-skill) |
+| Official MCP Registry | [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io) |
+| Smithery | [smithery.ai/server/4humai/slide-deck-skill](https://smithery.ai/server/4humai/slide-deck-skill) |
+| Glama | [glama.ai/mcp](https://glama.ai/mcp) — auto-indexed |
+| Skills.sh | [skills.sh](https://skills.sh) — auto-indexed via SKILL.md |
+| ClawHub | [clawhub.ai](https://clawhub.ai) — auto-indexed |
+
 ## Python scripts (CLI)
 
 ```bash
