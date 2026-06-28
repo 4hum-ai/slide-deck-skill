@@ -3,6 +3,17 @@
 All notable changes to this skill are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.12.0] — 2026-06-29
+
+### Fixed
+
+- **`SKILL.md` — source citation y-position**: Added explicit rule that source/footnote
+  text must be placed at `y=940` (not y=700–730). Agents were adding source captions
+  at y≈720, which still left ~280 px of dead whitespace below — the same problem the
+  "fill the vertical canvas" rule is meant to prevent. The rule now states: if main
+  content ends before y=700, add a secondary fill element (insight text, divider + stat)
+  in y=700–860, then anchor the source at y=940.
+
 ## [1.11.0] — 2026-06-28
 
 ### Added

@@ -14,7 +14,7 @@ allowed-tools: Bash Read
 metadata:
   platform: deck-4hum-ai
   author: phong.nguyen@4hum.ai
-  version: "1.11.0"
+  version: "1.12.0"
   argument-hint: "<topic or title for the deck>"
 ---
 
@@ -158,6 +158,13 @@ objects in the top 600 px and leave the bottom 400 px empty. Options:
 - Add a `caption` text at `y=920–960` with a source citation or key insight.
 - Extend the chart or table height to fill the space.
 - Use the bottom zone for a divider line + secondary stat.
+
+**Source citations must anchor the very bottom.** Place source/footnote
+text at `y=940, height=40` (not y=700–730). A source at y=720 still leaves
+280 px of dead white space below it — the same problem the rule is meant to
+fix. If your main content ends before y=700, add a second fill element
+(divider + secondary stat, `key insight` body text, or a sub-caption) in
+the y=700–860 zone, then anchor the source at y=940.
 
 ## Preflight Rules
 
