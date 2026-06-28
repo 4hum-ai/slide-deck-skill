@@ -3,6 +3,22 @@
 All notable changes to this skill are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.16.0] — 2026-06-29
+
+### Added
+
+- **`scripts/generate_video.py`**: New script mirroring `generate_image.py` for video
+  generation. POSTs to `/api/media/generate-video` (always async), polls until the
+  video is ready, and prints `{"media_id":"...","file_url":"...","duration_seconds":N}` to
+  stdout. Supports all 4 API providers: `qwen` (Wan 2.2, default), `byteplus` (Seedance),
+  `openai` (Sora 2), `gemini-veo` (Veo 3). Flags: `--size`, `--duration`, `--provider`,
+  `--model`, `--image` (image-to-video), `--negative`.
+- **`references/commands.md` — "Generate Video" section**: Full provider/size/duration
+  table, image-to-video usage, and the canonical "poster image behind video" workflow
+  pattern so agents generate the poster first, then the video, and layer them correctly.
+- **`SKILL.md` — step 5**: Updated to mention `generate_video.py` alongside
+  `generate_image.py`; documents the layered image+video pattern.
+
 ## [1.15.0] — 2026-06-29
 
 ### Fixed

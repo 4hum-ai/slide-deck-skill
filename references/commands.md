@@ -53,6 +53,49 @@ python scripts/generate_image.py "Futuristic server room, dark neon lighting" --
 
 Use the returned `file_url` as an image object's `src`.
 
+## Generate Video
+
+```bash
+python scripts/generate_video.py "PROMPT" [--size 1280x720] [--duration 5] [--provider qwen]
+```
+
+Prints JSON to stdout: `{"media_id":"...","file_url":"...","duration_seconds":5}`  
+Use `file_url` as the `src` field on a `video` object. Always also layer an `image()` at the same position as a poster fallback (VideoRenderer shows an error box in headless — see objects-guide.md).
+
+**Provider / size / duration options:**
+
+| Provider | `--provider` | Best sizes | Durations | Credits/sec |
+|---|---|---|---|---|
+| Qwen Wan 2.2 (default) | `qwen` | 1280x720, 1920x1080 | 5s | 2 |
+| BytePlus Seedance | `byteplus` | 1280x720, 1920x1080 | 5s, 10s | 2 |
+| OpenAI Sora 2 | `openai` | 1280x720 | 4s, 8s, 12s | 5 |
+| Google Veo 3 | `gemini-veo` | 1280x720, 1920x1080 | 8s (fixed) | 8 |
+
+**Image-to-video** (animate from a still image):
+```bash
+python scripts/generate_video.py "PROMPT" --image https://your-image-url.png
+```
+
+**Typical workflow for a video slide:**
+```python
+# 1. Generate a poster image (used as visual fallback in headless):
+poster = run("python scripts/generate_image.py 'POSTER PROMPT' --size 1280x720")
+poster_url = json.loads(poster)["file_url"]
+
+# 2. Generate the video:
+vid = run("python scripts/generate_video.py 'VIDEO PROMPT' --size 1280x720 --duration 5")
+video_url = json.loads(vid)["file_url"]
+
+# 3. In the slide JSON — image behind, video on top:
+objects = [
+    image(poster_url, x=200, y=200, w=1080, h=608),   # always visible (headless fallback)
+    video(src=video_url, x=200, y=200, w=1080, h=608,
+          poster=poster_url, controls=True),            # plays in production browser
+]
+```
+
+Rate limit: allow ~30s between `generate_video` calls to avoid 429 errors.
+
 ## Preview / Inspect
 
 ```bash

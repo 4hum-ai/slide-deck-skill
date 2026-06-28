@@ -14,7 +14,7 @@ allowed-tools: Bash Read
 metadata:
   platform: deck-4hum-ai
   author: phong.nguyen@4hum.ai
-  version: "1.15.0"
+  version: "1.16.0"
   argument-hint: "<topic or title for the deck>"
 ---
 
@@ -75,11 +75,17 @@ See `examples/*` for a complete example.
      must use `{"token":"<name>"}` references.
    - Tell the user the theme name and the one-sentence rationale (color mood +
      typography) before generating the full JSON.
-5. **Generate images when useful.** Use `scripts/generate_image.py` or the
-   available image tool before writing final `deckJson`. Collect `file_url`
-   values and use them as image `src` fields. The script prints JSON to stdout
-   only — human-readable lines go to stderr, so you can safely pipe or capture
-   stdout without parsing interference.
+5. **Generate images and videos when useful.** Use `scripts/generate_image.py`
+   or `scripts/generate_video.py` before writing final `deckJson`. Both print
+   JSON to stdout only — human-readable lines go to stderr.
+
+   **Images:** `python scripts/generate_image.py "PROMPT" --size 1920x1080`
+   Returns `{"file_url":"..."}`. Use as `image.src`.
+
+   **Videos:** `python scripts/generate_video.py "PROMPT" --size 1280x720 --duration 5`
+   Returns `{"file_url":"...","duration_seconds":N}`. Use as `video.src`.
+   Always also place a matching `image()` at the same position behind the video as
+   a headless fallback (see the Video Slide Pattern in `references/commands.md`).
 
    **Do NOT use `picsum.photos` for content-relevant images.** `picsum.photos`
    serves random photos from a seeded pool — a seed intended for a "lab" or
