@@ -209,7 +209,8 @@ slide-deck-skill/
 ├── SKILL.md                          # Agent instructions (loaded at activation)
 ├── scripts/
 │   ├── auth.py                       # Credential management
-│   ├── deck_patterns.py              # Schema-safe layout helpers (incl. portrait_card, kpi_card, grid)
+│   ├── block_builder.py              # Block builders: card, portrait_card, kpi_card, grid, chart, table…
+│   ├── deck_patterns.py              # Backwards-compat re-export shim (deck_patterns → block_builder)
 │   ├── deck_validator.py             # Local preflight validator (--strict quality pass)
 │   ├── preview_deck.py               # Structural summary + WCAG contrast check (--theme-check)
 │   ├── patch_slide.py                # Targeted single-slide edit / insert / delete

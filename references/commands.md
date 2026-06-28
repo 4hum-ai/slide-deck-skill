@@ -107,7 +107,7 @@ See `references/image-prompts.md` for proven prompt templates per image type.
 
 ## Python Layout Helpers
 
-`scripts/deck_patterns.py` includes schema-safe builders for:
+`scripts/block_builder.py` includes schema-safe block builders for:
 
 - `dark_tech_theme`
 - `text`, `rich_text`, `shape`, `line`, `image`

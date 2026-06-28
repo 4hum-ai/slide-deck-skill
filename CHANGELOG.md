@@ -3,6 +3,28 @@
 All notable changes to this skill are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.3.0] — 2026-06-28
+
+### Added
+
+- `scripts/get_deck.py` — projection fetch: prints only the requested slice of a
+  deck (use `--outline` for a compact index, `--slide N` for one slide's full
+  JSON, `--theme` for the theme object, `--section N` for one section). Avoids
+  putting the entire deck JSON in the agent's context for targeted edits.
+- `scripts/merge_deck.py` — RFC 7396 JSON Merge Patch writer: accepts a partial
+  deck fragment from stdin, deep-merges into the live deck, validates, and PUTs.
+  The agent outputs only the changed subtree rather than the full deck.
+- `SKILL.md` — "Token-Efficient Edit Pattern" section documenting the new
+  sparse-read + targeted-write workflow.
+
+### Changed
+
+- `scripts/deck_patterns.py` renamed to `scripts/block_builder.py` to align
+  with the UI's "block" concept (each helper returns a list of slide objects).
+  `deck_patterns.py` kept as a re-export shim for backwards compatibility.
+- All references updated to `block_builder.py` in SKILL.md, README.md, commands.md,
+  and the example generator.
+
 ## [1.2.0] — 2026-06-28
 
 ### Added

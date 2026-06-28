@@ -14,7 +14,7 @@ allowed-tools: Bash Read
 metadata:
   platform: deck-4hum-ai
   author: phong.nguyen@4hum.ai
-  version: "1.2.0"
+  version: "1.3.0"
   argument-hint: "<topic or title for the deck>"
 ---
 
@@ -31,8 +31,8 @@ Load these only when needed:
 - `references/scene-graph.md` - envelope, object schemas, animations, notes.
 - `references/commands.md` - Python script commands, environment variables, helper API.
 
-Use `scripts/deck_patterns.py` for common layouts when writing a generator. See
-`examples/agent_skills_marketplace.py` for a complete Python example.
+Use `scripts/block_builder.py` for common block layouts when writing a generator.
+See `examples/agent_skills_marketplace.py` for a complete Python example.
 
 ## Workflow
 
@@ -68,8 +68,9 @@ Use `scripts/deck_patterns.py` for common layouts when writing a generator. See
    values and use them as image `src` fields. Use deterministic `picsum.photos`
    URLs only for quick drafts or non-critical placeholders.
 5. **Generate deck JSON.** Use the slide-scene-graph envelope and object shapes
-   in `references/scene-graph.md`. Prefer `scripts/deck_patterns.py` for
-   schema-safe cards, lines, tables, diagrams, sections, and deck envelopes.
+   in `references/scene-graph.md`. Prefer `scripts/block_builder.py` for
+   schema-safe blocks: cards, portrait cards, KPI cards, grids, lines, tables,
+   diagrams, sections, and deck envelopes.
 6. **Preflight validate.** Run the local validator and fix every issue:
    ```bash
    python examples/agent_skills_marketplace.py | python scripts/deck_validator.py
@@ -130,6 +131,32 @@ The validator catches many of these, but follow them while authoring:
   documents unless they clarify sequencing.
 - Keep layouts on the 1920 x 1080 canvas and leave enough whitespace for text to
   render without clipping.
+
+## Token-Efficient Edit Pattern
+
+Prefer targeted scripts over full-deck regeneration — the agent only reads and
+writes the affected slice, saving both input and output tokens:
+
+```bash
+# 1. Read only what you need:
+python scripts/get_deck.py "<deck-id>" --outline        # compact section/slide index
+python scripts/get_deck.py "<deck-id>" --slide 7        # one slide's full JSON
+python scripts/get_deck.py "<deck-id>" --theme          # theme object only
+
+# 2. Write only what changed:
+# Replace one slide's objects (stdin = JSON array):
+echo '[...]' | python scripts/patch_slide.py "<deck-id>" 7
+
+# Deep-merge a partial JSON fragment (stdin = only the changed keys):
+echo '{"deck":{"theme":{"colors":{"accent":"#f97316"}}}}' | python scripts/merge_deck.py "<deck-id>"
+echo '{"deck":{"title":"New Title"}}' | python scripts/merge_deck.py "<deck-id>"
+
+# Quality validate with optional strict checks:
+python my_generator.py | python scripts/deck_validator.py --strict
+
+# Theme contrast check (WCAG AA/AAA):
+python scripts/preview_deck.py "<deck-id>" --theme-check
+```
 
 ## Common Commands
 
