@@ -14,7 +14,7 @@ allowed-tools: Bash Read
 metadata:
   platform: deck-4hum-ai
   author: phong.nguyen@4hum.ai
-  version: "1.4.0"
+  version: "1.5.0"
   argument-hint: "<topic or title for the deck>"
 ---
 
@@ -36,16 +36,26 @@ See `examples/*` for a complete example.
 
 ## Workflow
 
-1. **Design a custom theme.** Read `references/theme-presets.md` to understand
-   the six example presets — treat them as inspiration, not a pick list. Create
-   a new theme object that fits the topic, audience, and emotional tone:
+1. **Search for facts first.** If the topic involves factual claims,
+   statistics, current events, product details, laws, or other changeable
+   information, search now and cite source URLs in `speakerNotes`. Understanding
+   the subject matter also informs the theme (sport → bold/high-contrast,
+   finance → formal/neutral, culture → editorial/warm).
+2. **Plan the deck.** Define sections, slide titles, one claim per slide, and
+   which slides need images. Write a one-line visual prompt for each custom
+   image. Knowing the structure (number of slides, narrative arc, audience)
+   informs the visual density and tone of the theme.
+3. **Design a custom theme.** With the topic and structure in hand, open
+   `references/theme-presets.md` and use its two examples as structural
+   references — not a pick list. Create a new theme object that fits the
+   topic, audience, and emotional tone established in steps 1–2:
 
    - **Color psychology**: blue/indigo = trust/tech, green = growth/nature,
      orange = energy/creativity, purple = innovation/bold, neutral dark = minimal
      keynote, white = formal/corporate.
    - **Font pairing**: use display/heading for impact titles, body for
-     readability, mono only for code examples. Reference presets for proven pairs
-     (Inter, Georgia, JetBrains Mono).
+     readability, mono only for code examples. Use the Font Mood Reference in
+     `references/theme-presets.md` for proven font–topic pairings.
    - **Structural requirements**: the theme object must include `id` (new uuid),
      `name` (descriptive string), `fonts` (display, heading, body, mono), all
      required `colors` tokens (`background`, `surface`, `foreground`,
@@ -56,13 +66,6 @@ See `examples/*` for a complete example.
      must use `{"token":"<name>"}` references.
    - Tell the user the theme name and the one-sentence rationale (color mood +
      typography) before generating the full JSON.
-
-2. **Search for facts when needed.** If the topic involves factual claims,
-   statistics, current events, product details, laws, or other changeable
-   information, search first and cite source URLs in `speakerNotes`.
-3. **Plan the deck.** Define sections, slide titles, one claim per slide, and
-   which slides need images. Write a one-line visual prompt for each custom
-   image.
 4. **Generate images when useful.** Use `scripts/generate_image.py` or the
    available image tool before writing final `deckJson`. Collect `file_url`
    values and use them as image `src` fields. Use deterministic `picsum.photos`

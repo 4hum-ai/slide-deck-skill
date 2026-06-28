@@ -3,6 +3,23 @@
 All notable changes to this skill are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5.0] — 2026-06-28
+
+### Changed
+
+- `references/theme-presets.md` trimmed from 6 presets to 2 (Dark Tech + Light
+  Corporate). The other four presets (Warm Creative, Midnight Minimal, Forest
+  Green, Neon Purple) are removed — they added token weight without adding
+  structural value, since the workflow instructs agents to create fully custom
+  themes anyway. The Font Mood Reference table and Color Tokens section are
+  retained. The selection table is updated to frame the two examples as dark-vs-
+  light starting points, not a fixed pick list.
+- `SKILL.md` workflow reordered: **facts (step 1) → plan (step 2) → theme
+  (step 3)**. Previously theme design was step 1, before the agent understood
+  the topic or structure. The reorder ensures content knowledge informs the
+  aesthetic — the sport/finance/culture of the subject drives font and color
+  choices, not the reverse. Steps 4–10 are unchanged.
+
 ## [1.4.0] — 2026-06-28
 
 ### Added
