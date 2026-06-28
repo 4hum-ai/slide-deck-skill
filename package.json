@@ -1,5 +1,5 @@
 {
-  "name": "slide-deck-skill",
+  "name": "@4hum-ai/slide-deck-skill",
   "version": "1.2.0",
   "description": "MCP server + Claude Code skill for creating AI-powered slide decks on deck-4hum-ai (open-academia.com)",
   "type": "module",
@@ -28,7 +28,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/4hum-ai/slide-deck-skill.git"
+    "url": "git+https://github.com/4hum-ai/slide-deck-skill.git"
   },
   "homepage": "https://github.com/4hum-ai/slide-deck-skill#readme"
 }
