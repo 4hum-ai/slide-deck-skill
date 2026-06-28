@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "@4humai/slide-deck-skill",
   "version": "1.2.0",
   "description": "MCP server + Claude Code skill for creating AI-powered slide decks on deck-4hum-ai (open-academia.com)",
@@ -32,4 +32,3 @@
   },
   "homepage": "https://github.com/4hum-ai/slide-deck-skill#readme"
 }
-

@@ -1,4 +1,4 @@
-﻿# slide-deck-skill
+ slide-deck-skill
 
 **Claude Code skill** + **MCP server** for creating professional AI-powered slide decks on [deck-4hum-ai](https://deck.4hum.ai).
 
