@@ -1,7 +1,15 @@
 name: Publish to npm
 
 # Triggers on version tags: v1.2.0, v2.0.0, etc.
-# Required secret: NPM_TOKEN (npm automation token with publish access)
+#
+# Uses npm Trusted Publishing (OIDC) — no NPM_TOKEN secret needed.
+# One-time setup on npmjs.com:
+#   1. Go to npmjs.com → package "slide-deck-mcp" → Settings → Publishing
+#   2. Add Trusted Publisher → GitHub Actions
+#      - Owner:    4hum-ai
+#      - Repo:     slide-deck-skill
+#      - Workflow: publish.yml
+#      - Environment: (leave blank)
 
 on:
   push:
@@ -10,6 +18,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write   # required for OIDC Trusted Publishing
 
 jobs:
   publish:
@@ -46,7 +55,6 @@ jobs:
           fi
           echo "Version check passed: $PKG_VER"
 
-      - name: Publish to npm
-        run: pnpm publish --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish to npm (Trusted Publishing)
+        run: npm publish --provenance --access public
+        # No NODE_AUTH_TOKEN needed — OIDC token from GitHub Actions is used automatically
