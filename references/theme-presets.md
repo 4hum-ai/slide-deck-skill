@@ -56,7 +56,7 @@ Title slide background:
 {
   "id": "<uuid>",
   "name": "Light Corporate",
-  "fonts": { "heading": "Inter", "body": "Inter" },
+  "fonts": { "display": "Inter", "heading": "Inter", "body": "Inter", "mono": "JetBrains Mono" },
   "colors": {
     "background": "#ffffff",
     "surface": "#f8fafc",
@@ -79,31 +79,150 @@ Title slide background:
 }
 ```
 
+Title slide background:
+
+```json
+{"kind":"gradient","gradient":{"kind":"linear","angle":180,"stops":[{"color":{"token":"surface"},"offset":0},{"color":{"token":"background"},"offset":1}]}}
+```
+
 ## Warm Creative
 
-Use for creative, education, and lifestyle decks. Base colors: `background`
-`#fef9f0`, `surface` `#fff7ed`, `foreground` `#1c1917`, `primary`
-`#ea580c`, `accent` `#d97706`, `border` `#fed7aa`. Use the same text style
-scale as Light Corporate.
+```json
+{
+  "id": "<uuid>",
+  "name": "Warm Creative",
+  "fonts": { "display": "Georgia", "heading": "Georgia", "body": "Inter", "mono": "JetBrains Mono" },
+  "colors": {
+    "background": "#fef9f0",
+    "surface": "#fff7ed",
+    "foreground": "#1c1917",
+    "mutedForeground": "#78716c",
+    "primary": "#ea580c",
+    "primaryForeground": "#ffffff",
+    "accent": "#d97706",
+    "accentForeground": "#ffffff",
+    "border": "#fed7aa"
+  },
+  "textStyles": {
+    "title": { "fontFamily": "heading", "fontSize": 72, "fontWeight": 700, "color": { "token": "foreground" } },
+    "subtitle": { "fontFamily": "body", "fontSize": 36, "fontWeight": 400, "color": { "token": "mutedForeground" } },
+    "heading": { "fontFamily": "heading", "fontSize": 48, "fontWeight": 700, "color": { "token": "foreground" } },
+    "body": { "fontFamily": "body", "fontSize": 28, "fontWeight": 400, "color": { "token": "foreground" } },
+    "caption": { "fontFamily": "body", "fontSize": 20, "fontWeight": 400, "color": { "token": "mutedForeground" } },
+    "code": { "fontFamily": "mono", "fontSize": 22, "fontWeight": 400, "color": { "token": "accent" } }
+  }
+}
+```
+
+Title slide background:
+
+```json
+{"kind":"gradient","gradient":{"kind":"linear","angle":135,"stops":[{"color":{"token":"background"},"offset":0},{"color":{"token":"surface"},"offset":1}]}}
+```
 
 ## Midnight Minimal
 
-Use for minimalist keynotes and design portfolios. Base colors: `background`
-`#000000`, `surface` `#111111`, `foreground` `#ffffff`, `mutedForeground`
-`#737373`, `primary` `#ffffff`, `accent` `#22d3ee`, `border` `#262626`.
+```json
+{
+  "id": "<uuid>",
+  "name": "Midnight Minimal",
+  "fonts": { "display": "Inter", "heading": "Inter", "body": "Inter", "mono": "JetBrains Mono" },
+  "colors": {
+    "background": "#000000",
+    "surface": "#111111",
+    "foreground": "#ffffff",
+    "mutedForeground": "#737373",
+    "primary": "#ffffff",
+    "primaryForeground": "#000000",
+    "accent": "#22d3ee",
+    "accentForeground": "#000000",
+    "border": "#262626"
+  },
+  "textStyles": {
+    "title": { "fontFamily": "heading", "fontSize": 72, "fontWeight": 300, "color": { "token": "foreground" } },
+    "subtitle": { "fontFamily": "body", "fontSize": 36, "fontWeight": 300, "color": { "token": "mutedForeground" } },
+    "heading": { "fontFamily": "heading", "fontSize": 48, "fontWeight": 400, "color": { "token": "foreground" } },
+    "body": { "fontFamily": "body", "fontSize": 28, "fontWeight": 300, "color": { "token": "foreground" } },
+    "caption": { "fontFamily": "body", "fontSize": 20, "fontWeight": 300, "color": { "token": "mutedForeground" } },
+    "code": { "fontFamily": "mono", "fontSize": 22, "fontWeight": 400, "color": { "token": "accent" } }
+  }
+}
+```
+
+Title slide background:
+
+```json
+{"kind":"solid","color":{"token":"background"}}
+```
 
 ## Forest Green
 
-Use for sustainability, health, nature, and wellness. Base colors: `background`
-`#f0fdf4`, `surface` `#dcfce7`, `foreground` `#14532d`, `mutedForeground`
-`#166534`, `primary` `#16a34a`, `accent` `#84cc16`, `border` `#bbf7d0`.
+```json
+{
+  "id": "<uuid>",
+  "name": "Forest Green",
+  "fonts": { "display": "Inter", "heading": "Inter", "body": "Inter", "mono": "JetBrains Mono" },
+  "colors": {
+    "background": "#f0fdf4",
+    "surface": "#dcfce7",
+    "foreground": "#14532d",
+    "mutedForeground": "#166534",
+    "primary": "#16a34a",
+    "primaryForeground": "#ffffff",
+    "accent": "#84cc16",
+    "accentForeground": "#14532d",
+    "border": "#bbf7d0"
+  },
+  "textStyles": {
+    "title": { "fontFamily": "heading", "fontSize": 72, "fontWeight": 700, "color": { "token": "foreground" } },
+    "subtitle": { "fontFamily": "body", "fontSize": 36, "fontWeight": 400, "color": { "token": "mutedForeground" } },
+    "heading": { "fontFamily": "heading", "fontSize": 48, "fontWeight": 700, "color": { "token": "foreground" } },
+    "body": { "fontFamily": "body", "fontSize": 28, "fontWeight": 400, "color": { "token": "foreground" } },
+    "caption": { "fontFamily": "body", "fontSize": 20, "fontWeight": 400, "color": { "token": "mutedForeground" } },
+    "code": { "fontFamily": "mono", "fontSize": 22, "fontWeight": 400, "color": { "token": "accent" } }
+  }
+}
+```
+
+Title slide background:
+
+```json
+{"kind":"gradient","gradient":{"kind":"linear","angle":160,"stops":[{"color":{"token":"background"},"offset":0},{"color":{"token":"surface"},"offset":1}]}}
+```
 
 ## Neon Purple
 
-Use for gaming, entertainment, bold innovation, and high-energy topics. Base
-colors: `background` `#0a0014`, `surface` `#1a0b2e`, `foreground` `#faf5ff`,
-`mutedForeground` `#c084fc`, `primary` `#a855f7`, `accent` `#06b6d4`,
-`border` `#581c87`.
+```json
+{
+  "id": "<uuid>",
+  "name": "Neon Purple",
+  "fonts": { "display": "Inter", "heading": "Inter", "body": "Inter", "mono": "JetBrains Mono" },
+  "colors": {
+    "background": "#0a0014",
+    "surface": "#1a0b2e",
+    "foreground": "#faf5ff",
+    "mutedForeground": "#c084fc",
+    "primary": "#a855f7",
+    "primaryForeground": "#ffffff",
+    "accent": "#06b6d4",
+    "accentForeground": "#000000",
+    "border": "#581c87"
+  },
+  "textStyles": {
+    "title": { "fontFamily": "heading", "fontSize": 72, "fontWeight": 700, "color": { "token": "foreground" } },
+    "subtitle": { "fontFamily": "body", "fontSize": 36, "fontWeight": 400, "color": { "token": "mutedForeground" } },
+    "heading": { "fontFamily": "heading", "fontSize": 48, "fontWeight": 700, "color": { "token": "foreground" } },
+    "body": { "fontFamily": "body", "fontSize": 28, "fontWeight": 400, "color": { "token": "foreground" } },
+    "caption": { "fontFamily": "body", "fontSize": 20, "fontWeight": 400, "color": { "token": "mutedForeground" } },
+    "code": { "fontFamily": "mono", "fontSize": 22, "fontWeight": 400, "color": { "token": "accent" } }
+  }
+}
+```
+
+Title slide background:
+
+```json
+{"kind":"gradient","gradient":{"kind":"linear","angle":135,"stops":[{"color":{"token":"background"},"offset":0},{"color":{"token":"surface"},"offset":1}]}}
 
 ## Color Tokens
 
