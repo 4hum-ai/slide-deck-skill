@@ -1,8 +1,28 @@
 #!/usr/bin/env python3
 """Quantum Computing for Everyone — a 7-slide educational deck.
 
-Exercises latex_text, frame(browser) + frame(phone) with static image src,
-and a video object with a poster thumbnail. Dark futuristic quantum theme.
+Exercises:
+  - latex_text   — KaTeX formulas (|ψ⟩ = α|0⟩ + β|1⟩, |α|²+|β|²=1) on slide 3
+  - frame(browser) — static image inside browser chrome (circuit simulator) on slide 5
+  - frame(phone)   — static image inside phone bezel (Bloch sphere app) on slide 6
+  - video          — AI-generated GCS video + poster image fallback on slide 7
+
+VIDEO NOTE: The video on slide 7 was patched live after creation using
+generate_video.py + patch_slide.py. The generator below uses a placeholder GCS URL.
+For a production-ready generator, replace the placeholder with:
+
+    import subprocess, json
+    poster = json.loads(subprocess.check_output([
+        "python", "scripts/generate_image.py",
+        "quantum entanglement orbs, purple energy, dark space", "--size", "1280x720"
+    ], cwd=".."))["file_url"]
+    video_url = json.loads(subprocess.check_output([
+        "python", "scripts/generate_video.py",
+        "quantum entanglement -- two glowing purple orbs, wave interference, cinematic",
+        "--size", "1280x720", "--duration", "5", "--provider", "qwen"
+    ], cwd=".."))["file_url"]
+
+See references/commands.md "Generate Video" section for full documentation.
 """
 import json
 import os
