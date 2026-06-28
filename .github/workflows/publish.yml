@@ -1,0 +1,52 @@
+name: Publish to npm
+
+# Triggers on version tags: v1.2.0, v2.0.0, etc.
+# Required secret: NPM_TOKEN (npm automation token with publish access)
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Verify version matches tag
+        run: |
+          PKG_VER="v$(node -p "require('./package.json').version")"
+          TAG_VER="${GITHUB_REF_NAME}"
+          if [ "$PKG_VER" != "$TAG_VER" ]; then
+            echo "ERROR: package.json version ($PKG_VER) does not match tag ($TAG_VER)"
+            exit 1
+          fi
+          echo "Version check passed: $PKG_VER"
+
+      - name: Publish to npm
+        run: pnpm publish --access public --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

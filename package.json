@@ -1,0 +1,34 @@
+{
+  "name": "slide-deck-mcp",
+  "version": "1.2.0",
+  "description": "MCP server + Claude Code skill for creating AI-powered slide decks on deck-4hum-ai (open-academia.com)",
+  "type": "module",
+  "bin": {
+    "slide-deck-mcp": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "files": ["dist", "scripts", "SKILL.md", "README.md"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "prepare": "tsc"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["mcp", "claude", "skill", "slides", "deck", "presentation", "ai", "claude-skill"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/4hum-ai/slide-deck-skill.git"
+  },
+  "homepage": "https://github.com/4hum-ai/slide-deck-skill#readme"
+}
