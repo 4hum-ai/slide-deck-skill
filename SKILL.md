@@ -14,7 +14,7 @@ allowed-tools: Bash Read
 metadata:
   platform: deck-4hum-ai
   author: phong.nguyen@4hum.ai
-  version: "1.13.0"
+  version: "1.14.0"
   argument-hint: "<topic or title for the deck>"
 ---
 
@@ -178,6 +178,31 @@ the y=700–860 zone, then anchor the source at y=940.
 occupies x=0–700 and text occupies x=720–1840, set the source at
 `x=720, y=940`. A source at x=80 inside an image panel will render behind
 or over the image.
+
+## Text on Background Images
+
+When slide text sits directly on top of a full-bleed background image (cover,
+closing hero), the theme's `foreground` token may be the wrong color:
+
+- **Light theme + dark image** → `foreground` is dark navy, invisible on a
+  dark photo. Text appears to vanish.
+- **Dark theme + bright image** → `foreground` is white, washed out on a
+  bright photo.
+
+**Rule:** For any text that overlaps a background image, do one of:
+
+1. **Add a semi-transparent scrim shape first.** Place a `shape()` object
+   before the text objects with `fillOpacity: 0.55` (dark scrim for light
+   text, light scrim for dark text). Size it to cover the text region only.
+2. **Use explicit white or black text.** In `rich_text()` runs, set
+   `color: "#ffffff"` (over dark images) or `color: "#1a1a1a"` (over light
+   images) instead of relying on a theme token.
+3. **Use `primaryForeground` token.** Both dark and light presets define
+   `primaryForeground` as a light/white color (it's the text that appears on
+   the primary button). It's safer than `foreground` for hero overlays.
+
+Apply this to cover slides and any closing/section slide that uses a hero
+image as its background.
 
 ## Preflight Rules
 

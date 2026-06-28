@@ -3,6 +3,18 @@
 All notable changes to this skill are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.14.0] — 2026-06-29
+
+### Added
+
+- **`SKILL.md` — "Text on Background Images" section**: Light-theme slides
+  with dark hero images produce invisible text because `{"token":"foreground"}`
+  resolves to dark navy. Iteration 6 (Renewable Energy) showed the cover title
+  and closing-slide bullets were unreadable over the dark generated photos.
+  New rule: add a semi-transparent scrim shape, use explicit `#ffffff`/`#1a1a1a`
+  text, or use `primaryForeground` token (safe for both dark and light themes)
+  for any text object that overlaps a full-bleed background image.
+
 ## [1.13.0] — 2026-06-29
 
 ### Fixed
