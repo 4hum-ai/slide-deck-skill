@@ -12,7 +12,7 @@ JSON itself.
 ## What it does
 
 - Designs a custom theme matched to the topic's tone and audience (not just
-  picks from a list — uses the six built-in presets as inspiration)
+  picks from a list — uses two structural reference themes as a starting point)
 - Generates charts, tables, diagrams (Mermaid), images, and rich text objects
 - Validates the deck JSON locally before any network call
 - Previews rendered slides as screenshots so the agent can evaluate and iterate
@@ -30,90 +30,42 @@ JSON itself.
 
 ### Claude Code
 
-```bash
-/install https://github.com/4hum-ai/slide-deck-skill
-```
-
-Or copy the skill directory into your user skills folder:
+Clone the skill into your user-level skills directory (available in all sessions):
 
 ```bash
-cp -r slide-deck-skill ~/.claude/skills/
+git clone https://github.com/4hum-ai/slide-deck-skill ~/.claude/skills/slide-deck-skill
 ```
 
-### OpenAI Codex
-
-Add the skill to your `codex.json` skills list:
-
-```json
-{
-  "skills": [
-    "https://github.com/4hum-ai/slide-deck-skill"
-  ]
-}
-```
-
-Or clone it locally and point to the path:
-
-```json
-{
-  "skills": ["./skills/slide-deck-skill"]
-}
-```
-
-See [OpenAI Codex skills docs](https://developers.openai.com/codex/skills/) for details.
-
-### GitHub Copilot (VS Code)
-
-Copy the skill directory into your workspace or user skills folder:
+Or project-local (available only in that project):
 
 ```bash
-mkdir -p .github/skills
-cp -r slide-deck-skill .github/skills/
+git clone https://github.com/4hum-ai/slide-deck-skill .claude/skills/slide-deck-skill
 ```
 
-Then enable it in `.github/copilot-instructions.md` or via the Copilot skill
-loader. See [GitHub Copilot agent skills docs](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills).
+Start a new Claude Code session — the skill is auto-discovered from those locations.
+To update later: `cd ~/.claude/skills/slide-deck-skill && git pull`
 
-### Cursor
+### Any other agent
 
-Copy the skill directory into the Cursor skills location:
+Clone the repo and load `SKILL.md` according to your agent's skill or context
+mechanism:
 
 ```bash
-cp -r slide-deck-skill ~/.cursor/skills/
+git clone https://github.com/4hum-ai/slide-deck-skill
 ```
 
-Or add a project-local skill under `.cursor/skills/slide-deck-skill/`.
-See [Cursor skills docs](https://cursor.com/docs/context/skills).
+Then point your agent at the cloned directory. The entry point is `SKILL.md`
+at the root. All helper scripts are in `scripts/` and references in
+`references/`.
 
-### Gemini CLI
+Per-tool paths that are commonly used:
 
-```bash
-gemini skill add https://github.com/4hum-ai/slide-deck-skill
-```
-
-Or clone and reference locally:
-
-```bash
-git clone https://github.com/4hum-ai/slide-deck-skill ~/.gemini/skills/slide-deck-skill
-```
-
-See [Gemini CLI skills docs](https://geminicli.com/docs/cli/skills/).
-
-### Roo Code
-
-Add to your `.roocode/skills/` directory:
-
-```bash
-cp -r slide-deck-skill .roocode/skills/
-```
-
-See [Roo Code skills docs](https://docs.roocode.com/features/skills).
-
-### Any other agentskills.io-compatible client
-
-Copy or reference the skill directory per your client's documentation. All
-[agentskills.io-compatible clients](https://agentskills.io/clients) use the
-same `SKILL.md` format — the install path varies by product.
+| Tool | Where to clone / copy |
+|---|---|
+| Cursor | `.cursor/rules/` (as a `.mdc` file) or reference `SKILL.md` in `.cursorrules` |
+| Windsurf | `.windsurfrules` or `~/.codeium/windsurf/memories/` |
+| Copilot | Reference from `.github/copilot-instructions.md` |
+| Any other | Check your tool's documentation for how to load custom instructions or skills |
 
 ## Updating the skill
 
