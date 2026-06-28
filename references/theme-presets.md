@@ -15,6 +15,29 @@ set a `role` so the renderer applies the typography scale.
 | Sustainability, health, nature, wellness | Forest Green |
 | Gaming, entertainment, innovation, bold | Neon Purple |
 
+## Font Mood Reference
+
+Choose display/heading fonts to match the emotional register of the topic:
+
+| Font | Mood / Best for | Pair with (body) |
+|---|---|---|
+| **Inter** | Clean, neutral, universal | Inter (same) |
+| **Oswald** | Bold, sport, urgency, impact | Inter, Roboto |
+| **Bebas Neue** | Aggressive, gaming, streetwear, posters | Inter, Open Sans |
+| **Playfair Display** | Editorial, luxury, culture, journalism | Lato, Georgia |
+| **Georgia** | Academic, trust, warmth, education | Georgia (same) |
+| **Montserrat** | Modern corporate, fashion, lifestyle | Open Sans |
+| **Raleway** | Elegant, minimalist, premium | Raleway Light (same) |
+| **JetBrains Mono** | Tech, code, developer tools | JetBrains Mono |
+| **Inter (300 weight)** | Ultra-minimal, portfolio, keynote | Inter Light |
+
+**Quick rules:**
+- Sports / competition → Oswald or Bebas Neue display, Inter body
+- Editorial / culture → Playfair Display heading, Georgia body
+- Tech / AI / data → Inter heading, JetBrains Mono for code role
+- Minimal / design → Inter Light or Raleway, large whitespace
+- Warm / education → Georgia display+body (same family = cohesion)
+
 ## Dark Tech
 
 ```json

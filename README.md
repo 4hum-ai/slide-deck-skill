@@ -209,16 +209,18 @@ slide-deck-skill/
 ├── SKILL.md                          # Agent instructions (loaded at activation)
 ├── scripts/
 │   ├── auth.py                       # Credential management
-│   ├── deck_patterns.py              # Schema-safe layout helpers
-│   ├── deck_validator.py             # Local preflight validator
-│   ├── preview_deck.py               # Screenshot slides for agent evaluation
+│   ├── deck_patterns.py              # Schema-safe layout helpers (incl. portrait_card, kpi_card, grid)
+│   ├── deck_validator.py             # Local preflight validator (--strict quality pass)
+│   ├── preview_deck.py               # Structural summary + WCAG contrast check (--theme-check)
+│   ├── patch_slide.py                # Targeted single-slide edit / insert / delete
 │   ├── generate_image.py             # Image generation
 │   ├── save_deck.py                  # Create deck via API
 │   └── update_deck.py                # Update existing deck
 ├── references/
 │   ├── scene-graph.md                # Full deckJson schema reference
-│   ├── theme-presets.md              # Theme JSON objects + color tokens
-│   └── commands.md                   # Script commands + env vars
+│   ├── theme-presets.md              # Theme JSON objects, color tokens, font mood table
+│   ├── commands.md                   # Script commands, env vars, image sizing guide
+│   └── image-prompts.md              # Proven prompt templates (portrait, hero, icon, dataviz)
 └── examples/
     └── agent_skills_marketplace.py   # Complete five-slide example
 ```

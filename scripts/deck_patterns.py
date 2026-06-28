@@ -258,6 +258,108 @@ def deck(title: str, sections: list[dict], **options) -> dict:
     }
 
 
+def portrait_card(
+    image_url: str,
+    name: str,
+    subtitle: str,
+    body: str,
+    x: float,
+    y: float,
+    w: float,
+    h: float,
+    **options,
+) -> list[dict]:
+    """Vertical card with a portrait image at the top followed by name, subtitle, and body text.
+
+    Default proportions (tested on 390×440 cards in a 4-column layout):
+        - Card background shape fills the full card
+        - Portrait image occupies the top ~66 % (cover fit)
+        - Name (heading), subtitle (caption), body text stack below the image
+    """
+    img_h = round(h * 0.66)
+    text_top = y + img_h
+    text_x = x + 16
+    text_w = w - 32
+    name_h = min(52, round(h * 0.12))
+    sub_h = min(36, round(h * 0.08))
+    body_h = max(24, h - img_h - name_h - sub_h - 24)
+    return [
+        shape(x, y, w, h, options.get("fill", "surface"),
+              corner_radius=options.get("corner_radius", 18),
+              opacity=options.get("opacity", 1)),
+        image(image_url, x, y, w, img_h, fit="cover"),
+        text("heading", text_x, text_top + 8, text_w, name_h, name,
+             text_align="center", vertical_align="middle"),
+        text("caption", text_x, text_top + 8 + name_h, text_w, sub_h, subtitle,
+             text_align="center", vertical_align="middle"),
+        text("body", text_x, text_top + 8 + name_h + sub_h, text_w, body_h, body,
+             text_align="center", vertical_align="top"),
+    ]
+
+
+def kpi_card(
+    value: str,
+    label: str,
+    x: float,
+    y: float,
+    w: float,
+    h: float,
+    **options,
+) -> list[dict]:
+    """Large KPI / metric card with a prominent value and a small descriptive label below."""
+    val_h = round(h * 0.55)
+    lbl_h = max(28, h - val_h - 16)
+    return [
+        shape(x, y, w, h, options.get("fill", "surface"),
+              corner_radius=options.get("corner_radius", 18)),
+        text("title", x + 16, y + 8, w - 32, val_h, value,
+             text_align="center", vertical_align="middle"),
+        text("caption", x + 16, y + 8 + val_h, w - 32, lbl_h, label,
+             text_align="center", vertical_align="top"),
+    ]
+
+
+def grid(
+    items,
+    cols: int,
+    x: float,
+    y: float,
+    total_w: float,
+    total_h: float,
+    gap: float = 24,
+) -> list[dict]:
+    """Distribute items into a uniform grid and return a flat objects list.
+
+    items can be:
+    - A list of callables ``(x, y, w, h) -> list[dict]``  (use a lambda or functools.partial)
+    - A list of dicts with keys ``'heading'`` and ``'body'`` (auto-creates card objects)
+
+    Example::
+
+        grid(
+            [lambda x,y,w,h: kpi_card("$1.2B", "Revenue", x,y,w,h) for _ in stats],
+            cols=4, x=80, y=300, total_w=1760, total_h=300
+        )
+    """
+    rows = -(-len(items) // cols)  # ceiling division
+    cell_w = (total_w - gap * (cols - 1)) / cols
+    cell_h = (total_h - gap * (rows - 1)) / rows
+    objects: list[dict] = []
+    for idx, item in enumerate(items):
+        col = idx % cols
+        row = idx // cols
+        cx = x + col * (cell_w + gap)
+        cy = y + row * (cell_h + gap)
+        if callable(item):
+            objects.extend(item(cx, cy, cell_w, cell_h))
+        elif isinstance(item, dict):
+            objects.extend(card(cx, cy, cell_w, cell_h,
+                                item.get("heading", ""), item.get("body", "")))
+        else:
+            raise TypeError(f"grid item must be callable or dict, got {type(item)}")
+    return objects
+
+
 def process_flow(items: list[dict], x: float, y: float, width: float, height: float) -> list[dict]:
     gap = 36
     step_width = (width - gap * (len(items) - 1)) / len(items)

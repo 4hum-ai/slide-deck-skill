@@ -3,6 +3,35 @@
 All notable changes to this skill are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.2.0] — 2026-06-28
+
+### Added
+
+- `scripts/patch_slide.py` — targeted single-slide editor: fetch a live deck,
+  replace objects, insert a new slide after a given index, or delete a slide,
+  then validate and PUT — much faster than regenerating the full deck.
+- `scripts/deck_patterns.py` — three new layout helpers:
+  - `portrait_card(image_url, name, subtitle, body, x, y, w, h)` — vertical
+    card with a portrait photo on top and name/subtitle/body text below.
+  - `kpi_card(value, label, x, y, w, h)` — large KPI number with a small
+    descriptive label.
+  - `grid(items, cols, x, y, total_w, total_h, gap)` — uniform grid
+    distributing callable or dict items into rows × cols, returning a flat
+    objects list.
+- `scripts/deck_validator.py --strict` — optional quality pass: warns on
+  missing notes on content slides, missing transitions, theme textStyle
+  fontSize below 20 px, and full-bleed images without a contrast overlay.
+- `scripts/preview_deck.py --theme-check` — WCAG contrast ratio check for the
+  five key theme token pairs (foreground/background, foreground/surface,
+  muted/background, primary pair, accent pair); reports AA / AAA pass/fail.
+- `references/image-prompts.md` — proven prompt templates for portrait images,
+  hero backgrounds, section divider strips, icons, and data visualization
+  elements; includes sizing guide, rate-limit notes, and retry advice.
+- `references/commands.md` — image sizing table (use-case → `--size` flag) and
+  `patch_slide.py` usage section.
+- `references/theme-presets.md` — font mood reference table: eight typeface
+  families mapped to emotional register and best-pairing body font.
+
 ## [1.1.0] — 2026-06-28
 
 ### Added

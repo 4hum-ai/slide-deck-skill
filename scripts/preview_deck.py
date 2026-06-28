@@ -129,12 +129,91 @@ def summarize(deck_json: dict) -> str:
     return "\n".join(out)
 
 
+def _hex_to_rgb(hex_color: str) -> tuple[float, float, float] | None:
+    """Convert a hex color string to an (r, g, b) tuple in [0, 1] range."""
+    h = hex_color.lstrip("#")
+    if len(h) == 3:
+        h = "".join(c * 2 for c in h)
+    if len(h) not in (6, 8):
+        return None
+    try:
+        r, g, b = int(h[0:2], 16) / 255, int(h[2:4], 16) / 255, int(h[4:6], 16) / 255
+    except ValueError:
+        return None
+    return r, g, b
+
+
+def _linearize(c: float) -> float:
+    return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+
+def _luminance(r: float, g: float, b: float) -> float:
+    return 0.2126 * _linearize(r) + 0.7152 * _linearize(g) + 0.0722 * _linearize(b)
+
+
+def _contrast_ratio(hex_a: str, hex_b: str) -> float | None:
+    rgb_a = _hex_to_rgb(hex_a)
+    rgb_b = _hex_to_rgb(hex_b)
+    if rgb_a is None or rgb_b is None:
+        return None
+    la = _luminance(*rgb_a) + 0.05
+    lb = _luminance(*rgb_b) + 0.05
+    return max(la, lb) / min(la, lb)
+
+
+def theme_check(deck_json: dict) -> str:
+    """Check WCAG contrast ratios for key theme token pairs.
+
+    Checks foreground-on-background, foreground-on-surface,
+    primaryForeground-on-primary, and accentForeground-on-accent.
+    Reports AA/AAA pass/fail for normal text (4.5:1 / 7:1).
+    """
+    deck = deck_json.get("deck", deck_json)
+    colors = deck.get("theme", {}).get("colors", {})
+    if not colors:
+        return "No theme colors found."
+
+    PAIRS = [
+        ("foreground", "background", "body text on slide background"),
+        ("foreground", "surface", "body text on card / surface"),
+        ("mutedForeground", "background", "muted text on slide background"),
+        ("primaryForeground", "primary", "text on primary buttons"),
+        ("accentForeground", "accent", "text on accent chips"),
+    ]
+
+    lines = ["Theme contrast check (WCAG — normal text: AA≥4.5, AAA≥7):"]
+    for fg_token, bg_token, description in PAIRS:
+        fg = colors.get(fg_token)
+        bg = colors.get(bg_token)
+        if not fg or not bg:
+            lines.append(f"  {fg_token}/{bg_token}: token missing — skipped")
+            continue
+        ratio = _contrast_ratio(fg, bg)
+        if ratio is None:
+            lines.append(f"  {fg_token}/{bg_token}: invalid hex — skipped")
+            continue
+        aa = "PASS" if ratio >= 4.5 else "FAIL"
+        aaa = "PASS" if ratio >= 7.0 else "FAIL"
+        badge = "AAA" if ratio >= 7 else ("AA" if ratio >= 4.5 else "✗ FAIL")
+        lines.append(f"  {badge}  {ratio:5.2f}:1  {description}  ({fg_token} on {bg_token})")
+    return "\n".join(lines)
+
+
 def main() -> None:
-    deck_id: str | None = None
+    import argparse
+    parser = argparse.ArgumentParser(
+        description="Inspect a deck and print a per-slide structural summary.",
+        add_help=False,
+    )
+    parser.add_argument("deck_id", nargs="?", help="Deck UUID (omit to read JSON from stdin)")
+    parser.add_argument("--theme-check", action="store_true",
+                        help="Run WCAG contrast check on the theme color tokens")
+    args, _ = parser.parse_known_args()
+
+    deck_id: str | None = args.deck_id
     edit_url: str | None = None
 
-    if len(sys.argv) >= 2 and not sys.argv[1].startswith("-"):
-        deck_id = sys.argv[1]
+    if deck_id:
         print(f"Fetching deck {deck_id} …", file=sys.stderr)
         try:
             deck_json = _fetch_deck(deck_id)
@@ -147,7 +226,7 @@ def main() -> None:
         if not raw:
             print(
                 "Usage:\n"
-                "  python scripts/preview_deck.py <deck-id>\n"
+                "  python scripts/preview_deck.py <deck-id> [--theme-check]\n"
                 "  python my_generator.py | python scripts/preview_deck.py",
                 file=sys.stderr,
             )
@@ -159,6 +238,10 @@ def main() -> None:
             sys.exit(1)
 
     print(summarize(deck_json))
+
+    if args.theme_check:
+        print()
+        print(theme_check(deck_json))
 
     if edit_url:
         print(f"\nEdit URL:  {edit_url}")

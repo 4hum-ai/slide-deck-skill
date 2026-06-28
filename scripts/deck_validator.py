@@ -400,7 +400,75 @@ def format_validation_errors(issues: list[ValidationIssue]) -> str:
     return "\n".join(lines)
 
 
+def _strict_checks(deck_json: Any) -> list[ValidationIssue]:
+    """Quality checks enabled by --strict.
+
+    These are not schema violations but reduce presentation quality:
+    small font sizes in the theme, missing notes on content slides,
+    missing slide transitions, and full-bleed images without a contrast overlay.
+    """
+    issues: list[ValidationIssue] = []
+    deck = deck_json.get("deck", deck_json)
+
+    text_styles = deck.get("theme", {}).get("textStyles", {})
+    for role, style in text_styles.items():
+        if isinstance(style, dict) and isinstance(style.get("fontSize"), (int, float)):
+            if style["fontSize"] < 20:
+                issues.append(ValidationIssue(
+                    f"deckJson.deck.theme.textStyles.{role}.fontSize",
+                    f"is {style['fontSize']} — below 20 px may render unreadably small at 1920×1080",
+                ))
+
+    slide_n = 0
+    for si, section in enumerate(deck.get("sections", [])):
+        for li, slide in enumerate(section.get("slides", [])):
+            slide_n += 1
+            slide_path = f"deckJson.deck.sections.{si}.slides.{li}"
+            objs = slide.get("objects", [])
+
+            text_objs = [o for o in objs if o.get("type") == "text"]
+            if text_objs and not slide.get("notes") and not slide.get("speakerNotes"):
+                issues.append(ValidationIssue(
+                    slide_path,
+                    f"slide {slide_n} has {len(text_objs)} text object(s) but no notes or speakerNotes "
+                    "(add presenter notes or remove --strict to silence)",
+                ))
+
+            if not slide.get("transitions"):
+                issues.append(ValidationIssue(
+                    f"{slide_path}.transitions",
+                    f"slide {slide_n} has no transition — add {{\"effect\":\"fade\",\"durationMs\":400}}",
+                ))
+
+            for obj in objs:
+                if (
+                    obj.get("type") == "image"
+                    and obj.get("width", 0) >= 1000
+                    and obj.get("height", 0) >= 400
+                    and obj.get("opacity", 1) >= 1.0
+                ):
+                    has_overlay = any(
+                        o.get("type") == "shape" and o.get("opacity", 1) < 1.0
+                        for o in objs
+                    )
+                    if not has_overlay:
+                        oid = obj.get("id", "?")[:8]
+                        issues.append(ValidationIssue(
+                            f"{slide_path} obj:{oid}",
+                            f"slide {slide_n} has a large image (opacity=1) with no semi-transparent shape "
+                            "overlay — text placed on top may be unreadable",
+                        ))
+
+    return issues
+
+
 def main() -> int:
+    import argparse
+    parser = argparse.ArgumentParser(description="Validate a deck JSON.")
+    parser.add_argument("--strict", action="store_true",
+                        help="Run additional quality checks (notes, transitions, font sizes, overlays)")
+    args, _ = parser.parse_known_args()
+
     raw = sys.stdin.read().strip()
     if not raw:
         print("Error: deckJson is empty.", file=sys.stderr)
@@ -411,6 +479,8 @@ def main() -> int:
         print(f"Error: deckJson is not valid JSON: {e}", file=sys.stderr)
         return 1
     issues = validate_deck(deck_json)
+    if args.strict:
+        issues.extend(_strict_checks(deck_json))
     if issues:
         print(format_validation_errors(issues), file=sys.stderr)
         return 1
