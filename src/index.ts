@@ -7,9 +7,9 @@
  * slide-scene-graph v0.4.0 schema â€” these tools only persist and retrieve decks
  * via the REST API. No backend LLM is invoked here.
  *
- * Auth: reads ~/.open-academy/config.json (written by the Python auth.py
- * device flow). Run `python skills/deck-4hum-ai/scripts/auth.py` once to
- * authenticate, then start this server.
+ * Auth: reads ~/.open-academy/config.json. Run `npx @4humai/slide-deck-skill auth`
+ * once to authenticate via browser (or `python scripts/auth.py` for the device
+ * flow), then start this server.
  */
 import { readFileSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -45,7 +45,7 @@ function loadCredentials(): Credentials {
 
   if (!existsSync(CONFIG_PATH)) {
     throw new Error(
-      `Not authenticated. Run: python skills/deck-4hum-ai/scripts/auth.py\n` +
+      `Not authenticated. Run: npx @4humai/slide-deck-skill auth\n` +
         `Then restart this MCP server.`
     );
   }
@@ -364,6 +364,16 @@ async function handleDeleteDeck(args: Record<string, unknown>, creds: Credential
   const deck_id = String(args.deck_id ?? '');
   await request('DELETE', `/api/decks/${deck_id}`, null, creds);
   return { content: [{ type: 'text' as const, text: JSON.stringify({ success: true, deck_id }) }] };
+}
+
+// ---------------------------------------------------------------------------
+// Auth subcommand: `npx @4humai/slide-deck-skill auth [--reauth]`
+// ---------------------------------------------------------------------------
+
+if (process.argv[2] === 'auth') {
+  const { runAuth } = await import('./auth.js');
+  await runAuth(process.argv.includes('--reauth'));
+  process.exit(0);
 }
 
 // ---------------------------------------------------------------------------

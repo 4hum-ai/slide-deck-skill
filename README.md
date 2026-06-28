@@ -37,7 +37,17 @@ Add to your MCP client config (`~/.config/claude/claude_desktop_config.json`):
 }
 ```
 
-On first use the server will prompt you to authorize via browser (device flow). Credentials are saved to `~/.open-academy/config.json`.
+Authenticate once before using the server (opens your browser automatically):
+
+```bash
+# Authenticate once (opens browser automatically)
+npx @4humai/slide-deck-skill auth
+
+# Re-authenticate (force new session)
+npx @4humai/slide-deck-skill auth --reauth
+```
+
+Credentials are saved to `~/.open-academy/config.json`.
 
 ## MCP tools
 
@@ -54,7 +64,7 @@ On first use the server will prompt you to authorize via browser (device flow). 
 ## Python scripts (CLI)
 
 ```bash
-# Authenticate once
+# Authenticate once (device flow — fallback when browser-callback is unavailable)
 python scripts/auth.py
 
 # Generate an image for a slide
