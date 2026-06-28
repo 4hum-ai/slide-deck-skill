@@ -3,6 +3,28 @@
 All notable changes to this skill are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.18.0] — 2026-06-29
+
+### Added
+
+- **`scripts/set_deck_music.py`**: New script for managing deck-level `mediaTracks[]` — the
+  background music / ambient audio layer that plays across the full timeline. Modes: `--list`
+  (print current tracks), `--url URL` (add a track from a URL with `--loop`, `--volume`,
+  `--name`), `--add-track JSON_OR_FILE_OR_-` (append from JSON / file / stdin, auto-converts
+  `generate_audio.py` output), `--remove-track <id>` (remove by id), `--clear` (remove all).
+  Auto-normalises partial dicts and `generate_audio.py` format to `DeckMediaTrack` with all
+  required fields (`id`, `kind`, `startMs`). Supports `--kind audio|video`, `--start-ms`,
+  `--volume 0.0–1.0`, `--loop` for music beds.
+
+- **`examples/skill_playbook.py`**: New 9-slide "Slide Deck Agent Playbook" meta-deck (deck ID
+  `48389dc0-9543-4622-817d-8c8fa7347845`). Demonstrates all advanced skill capabilities:
+  the full toolkit table, 9-step Mermaid workflow, object-types chart+table, AI asset generation
+  comparison, narration track flow diagram, background music diagram, advanced patterns
+  (frame, LaTeX, QR, diagram), and a 4-item roadmap. Theme: Skill Blueprint (Space Grotesk,
+  dark navy `#0d1117`, purple `#7c3aed`, cyan `#06b6d4`). Ships with per-slide narration
+  (George, 9 tracks) and deck-level background ambience (`deck.mediaTracks[]`, River voice,
+  loop=true, volume=0.12).
+
 ## [1.17.0] — 2026-06-29
 
 ### Added

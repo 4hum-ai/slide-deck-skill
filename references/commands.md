@@ -96,6 +96,53 @@ objects = [
 
 Rate limit: allow ~30s between `generate_video` calls to avoid 429 errors.
 
+## Background Music (Deck-level)
+
+```bash
+# Add from a URL (royalty-free MP3 recommended):
+python scripts/set_deck_music.py <deck-id> --url "https://…/music.mp3" \
+    --loop --volume 0.15 --name "Background music"
+
+# Pipe generate_audio.py output as ambient track:
+python scripts/generate_audio.py "Ambient text…" --voice-id <uuid> | \
+    python scripts/set_deck_music.py <deck-id> --add-track - --loop --volume 0.12
+
+# List current deck mediaTracks:
+python scripts/set_deck_music.py <deck-id> --list
+
+# Remove all tracks:
+python scripts/set_deck_music.py <deck-id> --clear
+
+# Remove a specific track by id:
+python scripts/set_deck_music.py <deck-id> --remove-track <track-uuid>
+```
+
+**DeckMediaTrack fields:**
+
+| Field | Default | Notes |
+|---|---|---|
+| `url` | — | Required. MP3/WAV/MP4 direct file URL |
+| `loop` | `false` | Set `true` for music beds that fill the full deck duration |
+| `volume` | `1.0` | Gain 0.0–1.0. Use 0.1–0.2 to keep music under narration |
+| `startMs` | `0` | Offset from deck start in ms |
+| `name` | — | Label shown in the timeline UI |
+| `kind` | `"audio"` | `"audio"` or `"video"` (for video overlays) |
+
+**Typical pattern — ambient bed under narration:**
+```bash
+# 1. Generate ambient audio at slow pace:
+python scripts/generate_audio.py "Slide Deck Agent. Building with precision." \
+    --default-voice --speed 0.75 > ambient.json
+
+# 2. Add as looping background at 12% volume:
+python scripts/set_deck_music.py <deck-id> --add-track ambient.json \
+    --loop --volume 0.12 --name "Ambient bed"
+```
+
+Note: For real background music, use royalty-free audio from a direct MP3 URL.
+TTS tracks at low volume and slow speed work as atmospheric narration beds,
+not as music. A music generation endpoint is on the roadmap.
+
 ## Generate Audio
 
 ```bash

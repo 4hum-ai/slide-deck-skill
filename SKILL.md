@@ -14,7 +14,7 @@ allowed-tools: Bash Read
 metadata:
   platform: deck-4hum-ai
   author: phong.nguyen@4hum.ai
-  version: "1.17.0"
+  version: "1.18.0"
   argument-hint: "<topic or title for the deck>"
 ---
 
