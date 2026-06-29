@@ -221,18 +221,43 @@ The script prints:
 - **Per-slide render URLs** for browser-based screenshot evaluation:
   `https://deck.4hum.ai/slides/<deck-id>/<n>/render`
 
-### Playwright screenshot script (local dev)
+### Screenshot slides to PNG
 
-`scripts/uat/screenshot_deck.mjs` captures all slides to PNG files:
+`scripts/screenshot_slides.py` captures all slides (or a specific range) to PNG files
+against the **production render route** at `https://deck.4hum.ai` (no local dev server needed).
+Auth is read from `~/.open-academy/config.json` (run `python scripts/auth.py` to sign in first).
 
+**One-time setup:**
 ```bash
-cd scripts/uat
-node screenshot_deck.mjs <deck-id> <slide-count> <output-dir> http://localhost:5177
+pip install playwright
+python -m playwright install chromium
 ```
 
-**Local setup requirements:**
-1. FE dev server running on port 5175 (deck-4hum-ai) with `VITE_AUTH_PROVIDER=uat` and `VITE_UAT_BYPASS_TOKEN=<api-key>` and `VITE_PUBLIC_API_URL=https://open-academy-api-mz4xquo5lq-as.a.run.app`
-2. The script launches Playwright with `--disable-web-security` so the local FE can fetch the production API across origins (the production API's CORS policy allows `deck.4hum.ai` but not localhost).
+**Capture all slides:**
+```bash
+python scripts/screenshot_slides.py <deck-id> <slide-count> <output-dir>
+```
+
+**Capture from slide N onwards (0-based):**
+```bash
+python scripts/screenshot_slides.py <deck-id> <slide-count> <output-dir> --start 5
+```
+
+**Capture specific slide indices only:**
+```bash
+SLIDE_INDICES=0,3,9 python scripts/screenshot_slides.py <deck-id> <slide-count> <output-dir>
+```
+
+Prints `SAVED:<path>` on stdout for each captured file; all progress and warnings go to stderr.
+Exit code 2 if zero slides were saved (auth failure, wrong deck ID).
+
+Auth and API env overrides:
+
+| Variable | Purpose |
+|---|---|
+| `OPEN_ACADEMY_TOKEN` | Override the token from config |
+| `OPEN_ACADEMY_API_URL` | Override the API host used for route interception |
+| `SLIDE_INDICES` | Comma-separated 0-based indices to capture |
 
 ### Visual evaluation via browser tools
 

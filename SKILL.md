@@ -123,14 +123,18 @@ See `examples/*` for a complete example.
    ```
    Prints JSON to stdout: `{"deck_id":"...","deck_url":"..."}`. Human-readable
    status lines go to stderr. Parse stdout for the deck ID.
-9. **Preview and evaluate.** After saving, use `scripts/preview_deck.py` to
-   capture screenshots of the rendered slides. Review each slide image; fix
-   layout, contrast, or content issues before delivering to the user.
+9. **Preview and evaluate.** After saving, screenshot the rendered slides and review
+   each image for layout, contrast, or content issues before delivering to the user.
    ```bash
+   # Structural summary + render URLs (fast, no browser needed):
    python scripts/preview_deck.py "<deck-id>"
+
+   # Full Playwright screenshots to PNG (requires: pip install playwright && python -m playwright install chromium):
+   python scripts/screenshot_slides.py "<deck-id>" <slide-count> <output-dir>
    ```
-   The script prints per-slide render URLs. If browser tools are available,
-   navigate to each render URL and screenshot after the `renderReady` signal.
+   `screenshot_slides.py` targets `https://deck.4hum.ai` directly — no local dev server needed.
+   If browser tools are available, you can also navigate to each render URL printed by
+   `preview_deck.py` and screenshot after the `renderReady` signal fires.
 10. **Return the URL.** Always surface the edit URL printed by the script:
     `[Open deck](https://deck.4hum.ai/app/decks/<id>/edit)`.
 11. **Iterate.** If the preview reveals issues or the user requests changes,
