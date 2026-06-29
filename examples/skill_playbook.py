@@ -103,7 +103,7 @@ def s_cover() -> dict:
         shape(0, 330, 1920, 750, "foreground", corner_radius=0, opacity=0.76,
               stroke="foreground", stroke_width=0),
         rich_text("caption", 100, 354, 360, 36,
-            [{"kind": "span", "text": "FIELD GUIDE  ·  v1.18",
+            [{"kind": "span", "text": "FIELD GUIDE  ·  v1.19",
               "style": {"color": token("primary"), "fontWeight": 700}}]),
         shape(100, 404, 160, 6, "primary", corner_radius=3, stroke="primary", stroke_width=0),
         _ctext("title", 100, 420, 1720, 240,
@@ -346,41 +346,36 @@ def s_object_picker() -> dict:
 
 
 def s_patch_dont_rebuild() -> dict:
-    modes = [
-        {
-            "title": "patch_slide.py",
-            "body": (
-                "~800 tokens per call\n\n"
-                "Change: one slide's objects,\nchart data, or copy.\n\n"
-                "echo '[...]' |\n"
-                "python scripts/patch_slide.py DECK 3"
-            ),
-        },
-        {
-            "title": "merge_deck.py",
-            "body": (
-                "~200 tokens per call\n\n"
-                "Change: theme, deck title,\nor global settings.\n\n"
-                'echo \'{"deck":{"title":"New"}}\' |\n'
-                "python scripts/merge_deck.py DECK"
-            ),
-        },
-        {
-            "title": "Full regeneration",
-            "body": (
-                "6 000-8 000 tokens\n\n"
-                "Change: structure, new\nsections, new layout.\n\n"
-                "python examples/my_deck.py |\n"
-                "python scripts/save_deck.py 'T'"
-            ),
-        },
-    ]
+    # Explicit 3-column layout (avoids process_flow animated arrows at canvas origin)
+    card_w, card_h, card_y = 560, 480, 218
+    gap = 30
+    x1, x2, x3 = 80, 80 + card_w + gap, 80 + 2 * (card_w + gap)
+    body1 = (
+        "~800 tokens per call\n\n"
+        "Change: one slide's objects,\nchart data, or copy.\n\n"
+        "echo '[...]' |\n"
+        "python scripts/patch_slide.py DECK 3"
+    )
+    body2 = (
+        "~200 tokens per call\n\n"
+        "Change: theme, deck title,\nor global settings.\n\n"
+        'echo \'{"deck":{"title":"New"}}\' |\n'
+        "python scripts/merge_deck.py DECK"
+    )
+    body3 = (
+        "6 000-8 000 tokens\n\n"
+        "Change: structure, new\nsections, new layout.\n\n"
+        "python examples/my_deck.py |\n"
+        "python scripts/save_deck.py 'T'"
+    )
     return slide([
         text("heading", 100, 82, 1400, 70, "Patch, Don't Rebuild"),
         text("caption", 100, 160, 1720, 44,
              "Full regeneration costs 10x more tokens than a patch. Match the tool to the scope of the change."),
-        *process_flow(modes, 80, 218, 1760, 740),
-        text("caption", 100, 972, 1720, 44,
+        *card(x1, card_y, card_w, card_h, "patch_slide.py", body1),
+        *card(x2, card_y, card_w, card_h, "merge_deck.py", body2),
+        *card(x3, card_y, card_w, card_h, "Full regeneration", body3),
+        text("caption", 100, 720, 1720, 44,
              "If the change fits in one slide or one JSON fragment, patch or merge. Regenerate only when the structure changes."),
     ], notes="Token efficiency matters on long sessions. A 12-slide deck costs 6,000-8,000 tokens to regenerate. patch_slide reads only one section (~800 tokens) and writes just that slide back.")
 
@@ -428,8 +423,8 @@ def s_closing() -> dict:
                   "style": {"color": token("mutedForeground")}}],
                 text_align="center"),
             rich_text("caption", 100, 940, 1720, 60,
-                [{"kind": "span", "text": "slide-deck-skill  v1.18  ·  Maintained by 4hum.ai",
-                  "style": {"color": token("foreground")}}],
+                [{"kind": "span", "text": "slide-deck-skill  v1.19  ·  Maintained by 4hum.ai",
+                  "style": {"color": token("mutedForeground")}}],
                 text_align="center"),
         ],
         background={"kind": "solid", "color": token("foreground")},
