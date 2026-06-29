@@ -119,7 +119,7 @@ See `examples/*` for a complete example.
    ```
    Or pipe generator output directly:
    ```bash
-   python examples/urban_mobility_2030.py | python scripts/save_deck.py "Agent Skills & Skills Marketplace"
+   python examples/urban_mobility_2030.py | python scripts/save_deck.py "Urban Mobility 2030"
    ```
    Prints JSON to stdout: `{"deck_id":"...","deck_url":"..."}`. Human-readable
    status lines go to stderr. Parse stdout for the deck ID.
