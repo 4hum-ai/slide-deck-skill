@@ -1,588 +1,457 @@
 #!/usr/bin/env python3
-"""The Slide Deck Agent Playbook — practical guide to building great decks.
-
-This deck is written for agents, not developers. Each slide delivers a specific,
-actionable technique an agent can apply immediately. No API references — just
-patterns, prompts, and decisions that produce better presentations.
-
-Structure (5 sections, 12 slides):
-  Section 1: Quick Start
-    0. Cover
-    1. Your First Deck in 5 Minutes
-  Section 2: Mastering Images
-    2. The Image Prompt Formula
-    3. Size & Format Guide
-    4. Prompt Gallery — 4 Visual Archetypes
-    5. The Prompt Text: Copy-Paste Ready
-  Section 3: Voice & Audio
-    6. Writing Narration That Lands
-    7. Voice Selection + Background Music
-  Section 4: Choosing the Right Object
-    8. Right Object, Right Data
-  Section 5: Production Tips
-    9. Patch vs Merge vs Regenerate
-   10. 5 Pitfalls That Waste Time
-   11. Closing
-
-Theme: Blueprint (Space Grotesk, dark navy #0d1117, violet #6d28d9, amber #f59e0b)
-Deck ID: aa73d17b-de26-4e83-90bc-2ef97011bd26
-Edit URL: https://deck.4hum.ai/app/decks/aa73d17b-de26-4e83-90bc-2ef97011bd26/edit
-
-Images used:
-  COVER_IMG    — generated hero: dark navy abstract agent blueprint (1920x1080)
-  PORTRAIT_IMG — generated: professional split-panel portrait (960x1080)
-  CONCEPT_IMG  — generated: abstract glowing data network (1920x1080)
-  NIGHT_IMG    — reused from urban_mobility_2030.py closing night city (1920x1080)
+"""
+Skill Playbook -- A Field Guide
+12-slide practitioner walkthrough of the slide-deck-skill.
+Theme: Warm editorial -- cream / deep ink / signal orange / forest green
 """
 from __future__ import annotations
 
 import json
 import sys
 from pathlib import Path
+from uuid import uuid4
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
 
-from block_builder import (  # noqa: E402
-    bullet_list,
-    chart,
-    dark_tech_theme,
-    deck,
-    diagram,
-    image,
-    kpi_card,
-    line,
-    numbered_list,
-    rich_text,
-    section,
-    shape,
-    slide,
-    table,
-    text,
-    title_chip,
-    token,
+from block_builder import (
+    text, rich_text, shape, line, image, table, diagram,
+    bullet_list, card, process_flow, grid,
+    slide, section, deck, token,
 )
 
-COVER_IMG    = "https://storage.googleapis.com/open-academy-media/ai-images/df48d0c4-40fe-41f8-a3c3-7ca25d547695.png"
-PORTRAIT_IMG = "https://storage.googleapis.com/open-academy-media/ai-images/e4439828-17fe-4112-ba60-78a90c8420a4.png"
-CONCEPT_IMG  = "https://storage.googleapis.com/open-academy-media/ai-images/5d693140-0a6d-4736-831a-cfdd5881ed61.png"
-NIGHT_IMG    = "https://storage.googleapis.com/open-academy-media/ai-images/19b1d1c9-547c-4519-b144-44796526709a.png"
+
+def _ctext(role: str, x: float, y: float, w: float, h: float,
+           lines: list[str], color: str, **opts) -> dict:
+    """Colored multi-line text — splits lines into separate blocks so no span contains a newline."""
+    blocks = [
+        {"kind": "block", "runs": [{"kind": "span", "text": ln, "style": {"color": token(color)}}]}
+        for ln in lines
+    ]
+    return text(role, x, y, w, h, blocks, **opts)
+
+# ─── Assets ───────────────────────────────────────────────────────────────────
+COVER_IMG = "https://storage.googleapis.com/open-academy-media/ai-images/8a7f4028-5d94-4d66-8136-1043a0a8d808.png"
+SPLIT_IMG = "https://storage.googleapis.com/open-academy-media/ai-images/7308b8b6-21e7-470b-8472-8548554bad4e.png"
 
 
-def build_deck() -> dict:
-    theme = dark_tech_theme(
-        overrides={
-            "theme": {
-                "name": "Playbook Blueprint",
-                "fonts": {
-                    "display": "Space Grotesk",
-                    "heading": "Space Grotesk",
-                    "body": "Inter",
-                    "mono": "JetBrains Mono",
-                },
-            },
-            "colors": {
-                "background": "#0d1117",
-                "surface":    "#161b22",
-                "foreground": "#e6edf3",
-                "mutedForeground": "#8b949e",
-                "primary":    "#6d28d9",
-                "primaryForeground": "#ffffff",
-                "accent":     "#f59e0b",
-                "accentForeground": "#0d1117",
-                "border":     "#30363d",
-            },
-        }
+# ─── Theme ────────────────────────────────────────────────────────────────────
+def field_guide_theme() -> dict:
+    return {
+        "id": str(uuid4()),
+        "name": "Field Guide",
+        "fonts": {
+            "display": "Zilla Slab",
+            "heading": "Nunito Sans",
+            "body":    "Nunito Sans",
+            "mono":    "JetBrains Mono",
+        },
+        "colors": {
+            "background":        "#f7f3ec",
+            "surface":           "#ede8de",
+            "foreground":        "#1a1208",
+            "mutedForeground":   "#7a6a52",
+            "primary":           "#e8611a",
+            "primaryForeground": "#ffffff",
+            "accent":            "#2d6a4f",
+            "accentForeground":  "#ffffff",
+            "border":            "#d4c9b8",
+            "success":           "#a3e635",  # bright lime -- used as code highlight on dark cards
+            "warning":           "#f59e0b",  # amber warning
+            "destructive":       "#dc2626",  # red for "avoid" labels
+        },
+        "textStyles": {
+            "title":    {"fontFamily": "display", "fontSize": 72, "fontWeight": 700, "color": token("foreground")},
+            "subtitle": {"fontFamily": "body",    "fontSize": 32, "fontWeight": 400, "color": token("mutedForeground")},
+            "heading":  {"fontFamily": "heading", "fontSize": 48, "fontWeight": 700, "color": token("foreground")},
+            "body":     {"fontFamily": "body",    "fontSize": 28, "fontWeight": 400, "color": token("foreground")},
+            "caption":  {"fontFamily": "body",    "fontSize": 20, "fontWeight": 400, "color": token("mutedForeground")},
+            "code":     {"fontFamily": "mono",    "fontSize": 20, "fontWeight": 400, "color": token("success")},
+        },
+    }
+
+
+# ─── Helper: dark terminal card ───────────────────────────────────────────────
+def dark_card(x: float, y: float, w: float, h: float,
+              label: str | None = None,
+              code: str | None = None) -> list[dict]:
+    objects: list[dict] = [
+        shape(x, y, w, h, "foreground", corner_radius=12, stroke="foreground", stroke_width=0),
+    ]
+    if label:
+        objects.append(
+            rich_text("caption", x + 20, y + 16, w - 40, 32,
+                [{"kind": "span", "text": label,
+                  "style": {"color": token("primary"), "fontWeight": 700}}])
+        )
+    if code:
+        code_y = y + (56 if label else 24)
+        code_h = h - (72 if label else 40)
+        # Use plain text (string content) so multi-line code doesn't hit TextSpan newline restriction
+        objects.append(
+            text("code", x + 20, code_y, w - 40, code_h, code,
+                 text_align="left", vertical_align="top")
+        )
+    return objects
+
+
+# ─── Section 1: Start ─────────────────────────────────────────────────────────
+
+def s_cover() -> dict:
+    return slide([
+        image(COVER_IMG, 0, 0, 1920, 1080),
+        shape(0, 330, 1920, 750, "foreground", corner_radius=0, opacity=0.76,
+              stroke="foreground", stroke_width=0),
+        rich_text("caption", 100, 354, 360, 36,
+            [{"kind": "span", "text": "FIELD GUIDE  ·  v1.18",
+              "style": {"color": token("primary"), "fontWeight": 700}}]),
+        shape(100, 404, 160, 6, "primary", corner_radius=3, stroke="primary", stroke_width=0),
+        _ctext("title", 100, 420, 1720, 240,
+               ["From Prompt", "to Presenter"], "primaryForeground",
+               text_align="left", vertical_align="top"),
+        _ctext("subtitle", 100, 674, 1060, 100,
+               ["The practitioner's guide to building beautiful",
+                "slide decks with Claude and the slide-deck-skill."],
+               "border", text_align="left"),
+        rich_text("caption", 100, 958, 1200, 40,
+            [{"kind": "span",
+              "text": "deck.4hum.ai  ·  slide-deck-skill  ·  Generated with claude-sonnet-4-6",
+              "style": {"color": token("mutedForeground")}}]),
+    ])
+
+
+def s_quickstart() -> dict:
+    commands = (
+        "# 1. Authenticate once\n"
+        "python scripts/auth.py\n\n"
+        "# 2. Write a generator and save to the API\n"
+        "python examples/my_deck.py | python scripts/save_deck.py 'My Deck Title'\n\n"
+        "# 3. Inspect the saved deck (screenshots + structure)\n"
+        "python scripts/preview_deck.py <deck-id>\n\n"
+        "# 4. Patch a single slide -- no full rebuild needed\n"
+        "echo '[{...}]' | python scripts/patch_slide.py <deck-id> 3\n\n"
+        "# 5. Generate an AI image, use the returned URL as image.src\n"
+        'python scripts/generate_image.py "city at golden hour" --size 1920x1080'
     )
+    return slide([
+        text("heading", 100, 82, 1400, 70, "Your First Deck in 5 Commands"),
+        text("caption", 100, 162, 1400, 44,
+             "Authenticate once. Write a generator. Save and preview. Live in under 2 minutes."),
+        shape(80, 220, 1760, 798, "foreground", corner_radius=16, stroke="foreground", stroke_width=0),
+        shape(116, 244, 16, 16, "primary", corner_radius=8, stroke="primary", stroke_width=0),
+        shape(148, 244, 16, 16, "accent",  corner_radius=8, stroke="accent",  stroke_width=0),
+        shape(180, 244, 16, 16, "border",  corner_radius=8, stroke="border",  stroke_width=0),
+        text("code", 120, 278, 1680, 720, commands,
+             text_align="left", vertical_align="top"),
+    ], notes="Five commands, complete workflow. The API returns deck_id and an edit URL immediately. Iterate with patch_slide or merge_deck rather than full rebuilds.")
 
-    def w(text_: str, weight: int = 400):
-        return [{"kind": "span", "text": text_, "style": {
-            "color": token("primaryForeground"), "fontWeight": weight,
-        }}]
 
-    def amber(text_: str, weight: int = 700):
-        return [{"kind": "span", "text": text_, "style": {
-            "color": token("accent"), "fontWeight": weight,
-        }}]
+# ─── Section 2: Images ────────────────────────────────────────────────────────
 
-    def muted(text_: str):
-        return [{"kind": "span", "text": text_, "style": {"color": token("mutedForeground")}}]
+def s_prompt_formula() -> dict:
+    formula = (
+        "flowchart LR\n"
+        "  A[\"① Subject\\nBusy downtown street\"] --> "
+        "B[\"② Style\\nCinematic photography\"] --> "
+        "C[\"③ Lighting\\nGolden afternoon\"] --> "
+        "D[\"④ Palette\\nAmber & slate-blue\"] --> "
+        "E[\"⑤ Composition\\nRule of thirds\"]"
+    )
+    example = (
+        '"Busy downtown street scene, cinematic wide-angle photography,\n'
+        " golden afternoon light, warm amber and slate-blue palette,\n"
+        ' rule-of-thirds composition, 8K, photorealistic"'
+    )
+    return slide([
+        text("heading", 100, 82, 1720, 70, "The Prompt Formula That Always Works"),
+        text("caption", 100, 160, 1600, 44, "Five parts. Stack them in order. Generate confidently."),
+        diagram(80, 218, 1760, 440, formula),
+        text("caption", 100, 676, 440, 36, "Assembled result:"),
+        *dark_card(80, 716, 1760, 250, code=example),
+        text("caption", 100, 982, 1720, 44,
+             "Be specific in every part -- vague prompts return generic images. Use real place names, artist styles, exact lighting rigs."),
+    ], notes="Subject + Style + Lighting + Palette + Composition. Each part narrows the model's search space. Specificity in any one part improves the whole output.")
 
-    def label_chip(label: str, x: int, y: int, color: str = "accent") -> list:
-        return [
-            shape(x, y, len(label) * 11 + 32, 36, color, shape="rectangle",
-                  stroke_width=0, opacity=1),
-            rich_text("caption", x + 12, y + 6, len(label) * 11 + 8, 26,
-                      [{"kind": "span", "text": label, "style": {
-                          "color": token("accentForeground"), "fontWeight": 700,
-                          "fontSize": 13,
-                      }}]),
-        ]
 
-    # ───────────────────────── 0  COVER
-    cover = slide(
+def s_size_picker() -> dict:
+    rows = [
+        ["Slide zone",           "Best for",                      "Generate size",  "CLI flag"],
+        ["Full-bleed hero",      "Cover, section header",         "1920 x 1080",    "--size 1920x1080"],
+        ["Half panel (L or R)",  "Split-panel story slide",       "960 x 1080",     "--size 960x1080"],
+        ["Portrait card",        "Speaker, character, product",   "720 x 900",      "--size 720x900"],
+        ["Square thumbnail",     "Icon, logo, step marker",       "600 x 600",      "--size 600x600"],
+        ["Wide accent strip",    "Textured banner, section bg",   "1920 x 400",     "--size 1920x400"],
+    ]
+    return slide([
+        text("heading", 100, 82, 1400, 70, "Pick the Right Image Size"),
+        text("caption", 100, 160, 1600, 44,
+             "Match size to display region -- the renderer crops to fit, not stretches. Wrong size = quality loss."),
+        table(80, 218, 1760, 720, rows),
+        text("caption", 100, 952, 1720, 44,
+             "Rate limit: ~1 req / 2 s. On a 429 error, wait 15 s and retry. Never generate in parallel -- calls queue poorly."),
+    ], notes="Generating at exact display size avoids upscaling/downscaling quality loss. Always use --size explicitly.")
+
+
+def s_image_gallery() -> dict:
+    left_prompt = (
+        '"A beautifully designed slide deck on a monitor in a sunlit studio,\n'
+        " editorial photography, warm golden afternoon light, cream and\n"
+        ' wood tones, shallow depth of field, Leica M11, film grain"\n'
+        "--size 1920x1080"
+    )
+    right_prompt = (
+        '"Split-panel: Python code on dark terminal (left), resulting\n'
+        " slide on bright monitor (right), editorial composition,\n"
+        ' warm studio lighting, cream and amber tones"\n'
+        "--size 960x1080"
+    )
+    return slide([
+        text("heading", 100, 82, 1720, 70, "What a Real Prompt Creates"),
+        text("caption", 100, 160, 1720, 44,
+             "These two images were generated by the prompts shown -- actual outputs from this session."),
+        image(COVER_IMG, 80, 216, 860, 484),
+        image(SPLIT_IMG, 980, 216, 860, 484),
+        *dark_card(80,  712, 860, 300, label="HERO BACKGROUND  (1920x1080)", code=left_prompt),
+        *dark_card(980, 712, 860, 300, label="SPLIT PANEL  (960x1080)",      code=right_prompt),
+    ], notes="Generated in this session using generate_image.py. Left: editorial studio for a warm cover. Right: code-to-slide split panel for a demo slide.")
+
+
+def s_prompt_templates() -> dict:
+    t_hero = (
+        "# Cover / section hero\n"
+        '"[Subject], cinematic wide-angle shot,\n'
+        " [dramatic | warm | moody] lighting,\n"
+        " [primary color] and [accent color] palette,\n"
+        ' rule-of-thirds, 8K, photorealistic"\n'
+        "--size 1920x1080"
+    )
+    t_portrait = (
+        "# Portrait / speaker card\n"
+        '"[Name or description] professional portrait,\n'
+        " [soft studio | warm conference | outdoor] lighting,\n"
+        " shallow depth of field, [background color] bg,\n"
+        ' editorial photography style"\n'
+        "--size 720x900"
+    )
+    t_concept = (
+        "# Abstract / concept\n"
+        '"[Concept e.g. Quantum], glowing particles,\n'
+        " network mesh, dark [indigo | navy | forest] bg,\n"
+        " [neon color] accents, 3D render, futuristic,\n"
+        ' cinematic depth of field"\n'
+        "--size 1920x1080"
+    )
+    t_icon = (
+        "# Icon / step marker\n"
+        '"Minimal flat icon of [subject],\n'
+        " clean vector style, [brand color] on white,\n"
+        " simple geometric shapes, no gradients,\n"
+        ' SVG illustration style"\n'
+        "--size 600x600"
+    )
+    return slide([
+        text("heading", 100, 82, 1400, 70, "4 Copy-Paste Prompt Templates"),
+        text("caption", 100, 160, 1600, 44,
+             "Replace the [bracketed] parts. Keep the rest -- the structure is proven."),
+        *dark_card(80,  218, 860, 390, label="HERO BACKGROUND",         code=t_hero),
+        *dark_card(980, 218, 860, 390, label="PORTRAIT / SPEAKER CARD", code=t_portrait),
+        *dark_card(80,  626, 860, 390, label="ABSTRACT / CONCEPT",      code=t_concept),
+        *dark_card(980, 626, 860, 390, label="ICON / STEP MARKER",      code=t_icon),
+    ], notes="Four templates cover 90% of slide image needs. Keep structural keywords and swap the subject and colors.")
+
+
+# ─── Section 3: Voice ─────────────────────────────────────────────────────────
+
+def s_writing_for_voice() -> dict:
+    rules = [
+        "One idea per narration -- finish the thought before the slide transitions",
+        "Conversational tempo -- write how you'd speak it, not how you'd type it",
+        "Active voice -- 'Revenue grew 18%' beats 'An 18% growth was observed'",
+        "Breath-length sentences -- if it takes more than 6 s to say, split it",
+    ]
+    return slide([
+        text("heading", 100, 82, 1720, 70, "Writing Narration That Actually Works"),
+        text("caption", 100, 160, 1600, 44,
+             "TTS reads what you write. Four rules make the difference between robotic and natural."),
+        bullet_list(rules, 100, 222, 1720, 360, role="body"),
+        line(100, 596, 1720, 2, stroke="border"),
+        shape(80,   618, 840, 230, "surface", corner_radius=12, stroke="border"),
+        rich_text("caption", 100, 634, 320, 36,
+            [{"kind": "span", "text": "AVOID",
+              "style": {"color": token("destructive"), "fontWeight": 700}}]),
+        text("body", 100, 678, 800, 156,
+             "The following slide will present data regarding quarterly performance metrics across multiple business units."),
+        shape(1000, 618, 840, 230, "surface", corner_radius=12, stroke="border"),
+        rich_text("caption", 1020, 634, 320, 36,
+            [{"kind": "span", "text": "WRITE THIS",
+              "style": {"color": token("accent"), "fontWeight": 700}}]),
+        text("body", 1020, 678, 800, 156,
+             "Q3 hit its targets -- and three teams drove it. Here's what's behind the numbers."),
+        text("caption", 100, 862, 1720, 44,
+             "Rule of thumb: read it aloud before generating. If you stumble, the listener will too."),
+        text("caption", 100, 940, 1720, 56,
+             "Text limit: 8 000 chars per generate_audio.py call. For longer scripts, split across slides and generate separately."),
+    ], notes="Short sentences, active voice, one idea per slide. Write the narration before designing the slide -- it forces clarity about what the slide's single claim actually is.")
+
+
+def s_narration_pipeline() -> dict:
+    pipe = (
+        "flowchart LR\n"
+        "  A[\"Write narration\\n(per-slide text)\"] --\"echo / heredoc\"--> "
+        "B[\"generate_audio.py\\n--voice-id UUID\"] --\"pipe ( | )\"--> "
+        "C[\"patch_slide.py\\nDECK_ID SLIDE_IDX\\n--add-narration-track -\"] --> "
+        "D[\"NarrationTrack\\nattached to slide\"]"
+    )
+    cmd = (
+        "# One command per slide -- pipe generate_audio into patch_slide:\n"
+        "python scripts/generate_audio.py \"Revenue grew 18% -- here's what drove it.\" \\\n"
+        "    --voice-id 2a30f00d-e001-40ce-9f14-cdc181b6efe5 \\\n"
+        "  | python scripts/patch_slide.py $DECK_ID 2 --add-narration-track -\n\n"
+        "# List available voices:\n"
+        "python scripts/generate_audio.py --list-voices\n\n"
+        "# Add deck-level background music:\n"
+        "python scripts/set_deck_music.py $DECK_ID \\\n"
+        "    --url \"https://your-cdn.com/ambient.mp3\" --loop --volume 0.12"
+    )
+    return slide([
+        text("heading", 100, 82, 1720, 70, "The Narration Pipeline"),
+        text("caption", 100, 160, 1600, 44,
+             "One pipe command adds a synchronized narration track to any slide."),
+        diagram(80, 218, 1760, 420, pipe),
+        *dark_card(80, 650, 1760, 344, label="SHELL COMMANDS", code=cmd),
+    ], notes="generate_audio.py outputs JSON to stdout. patch_slide.py reads it via stdin and auto-converts to a NarrationTrack. set_deck_music.py handles deck-level background audio.")
+
+
+# ─── Section 4: Pro Patterns ──────────────────────────────────────────────────
+
+def s_object_picker() -> dict:
+    rows = [
+        ["You have...",          "Use this object",          "Avoid"],
+        ["Numbers / metrics",    "chart()",                  "table() -- charts show change visually"],
+        ["A process / steps",    "diagram() -- Mermaid",     "process_flow() -- too many objects at 5+"],
+        ["A/B comparison",       "comparison_columns()",     "two separate card() stacks"],
+        ["Styled inline text",   "rich_text() with runs",    "text() -- can't style spans individually"],
+        ["Code / commands",      "text(role='code')",        "bullet_list() -- loses monospace alignment"],
+        ["Math equation",        "latex_text()",             "text() -- formula won't render as math"],
+        ["Video content",        "video() + image() poster", "embed() -- YouTube blocks in iframes"],
+    ]
+    return slide([
+        text("heading", 100, 82, 1400, 70, "Object Picker: Use the Right Tool"),
+        text("caption", 100, 160, 1720, 44,
+             "The wrong object type is the most common source of layout and rendering bugs."),
+        table(80, 218, 1760, 730, rows),
+        text("caption", 100, 962, 1720, 44,
+             "When in doubt: fewer objects > more objects. bullet_list() is 1 object; 5x card() is 15."),
+    ], notes="The Object Picker answers 'which object do I reach for?' The Avoid column is just as important as the Use column.")
+
+
+def s_patch_dont_rebuild() -> dict:
+    modes = [
+        {
+            "title": "patch_slide.py",
+            "body": (
+                "~800 tokens per call\n\n"
+                "Change: one slide's objects,\nchart data, or copy.\n\n"
+                "echo '[...]' |\n"
+                "python scripts/patch_slide.py DECK 3"
+            ),
+        },
+        {
+            "title": "merge_deck.py",
+            "body": (
+                "~200 tokens per call\n\n"
+                "Change: theme, deck title,\nor global settings.\n\n"
+                'echo \'{"deck":{"title":"New"}}\' |\n'
+                "python scripts/merge_deck.py DECK"
+            ),
+        },
+        {
+            "title": "Full regeneration",
+            "body": (
+                "6 000-8 000 tokens\n\n"
+                "Change: structure, new\nsections, new layout.\n\n"
+                "python examples/my_deck.py |\n"
+                "python scripts/save_deck.py 'T'"
+            ),
+        },
+    ]
+    return slide([
+        text("heading", 100, 82, 1400, 70, "Patch, Don't Rebuild"),
+        text("caption", 100, 160, 1720, 44,
+             "Full regeneration costs 10x more tokens than a patch. Match the tool to the scope of the change."),
+        *process_flow(modes, 80, 218, 1760, 740),
+        text("caption", 100, 972, 1720, 44,
+             "If the change fits in one slide or one JSON fragment, patch or merge. Regenerate only when the structure changes."),
+    ], notes="Token efficiency matters on long sessions. A 12-slide deck costs 6,000-8,000 tokens to regenerate. patch_slide reads only one section (~800 tokens) and writes just that slide back.")
+
+
+def s_pitfalls() -> dict:
+    rows = [
+        ["Pitfall",                                 "Fix"],
+        ["picsum.photos for content images",
+         "Use generate_image.py -- random seeds may return wrong subject (food for 'lab', fashion for 'city')."],
+        ["Literal font name in fontFamily",
+         "Use the slot name: 'mono' not 'JetBrains Mono'. Validator rejects literal names."],
+        ["Canvas overflow (x+width > 1920)",
+         "Check x+width <= 1920, y+height <= 1080. Set autoFit:'shrink' to clip long text."],
+        ["YouTube inside an embed object",
+         "Use qr_code() pointing to the URL, or frame() with a static screenshot + play button shape."],
+        ["Text invisible on a background image",
+         "Add a scrim shape (opacity 0.55) between image and text, or use rich_text with color: primaryForeground."],
+    ]
+    return slide([
+        text("heading", 100, 82, 1400, 70, "5 Pitfalls and How to Fix Them"),
+        text("caption", 100, 160, 1720, 44,
+             "These account for 80% of validator errors and rendering surprises."),
+        table(80, 218, 1760, 730, rows),
+        text("caption", 100, 962, 1720, 44,
+             "Run  python scripts/preview_deck.py --theme-check  after every new theme -- WCAG contrast failures appear immediately."),
+    ], notes="Common pitfalls in order: wrong image source, font family error, canvas overflow, broken embed, invisible text. The validator catches most before a network call.")
+
+
+# ─── Section 5: Go Build ──────────────────────────────────────────────────────
+
+def s_closing() -> dict:
+    return slide(
         [
-            image(COVER_IMG, 0, 0, 1920, 1080, fit="cover"),
-            shape(0, 0, 1920, 1080, "background", shape="rectangle", stroke_width=0, opacity=0.62),
-            *title_chip("THE AGENT PLAYBOOK", 100, 82, 440),
-            text("title", 100, 270, 1600, 300,
-                 [{"kind": "block", "runs": w("Slide Decks That", 700)},
-                  {"kind": "block", "runs": w("Work First Time", 700)}]),
-            rich_text("subtitle", 104, 580, 1280, 90,
-                      w("Practical patterns for building beautiful, narrated presentations — "
-                        "images, audio, object choices, and production shortcuts.")),
-            line(104, 714, 480, 4, stroke="accent", stroke_width=6),
-            rich_text("caption", 104, 760, 1100, 46,
-                      muted("12 slides · 5 sections · every technique demonstrated live in this deck")),
+            rich_text("title", 100, 310, 1720, 210,
+                [{"kind": "span", "text": "Now go build.",
+                  "style": {"color": token("primaryForeground")}}],
+                text_align="center", vertical_align="middle"),
+            shape(820, 538, 280, 8, "primary", corner_radius=4, stroke="primary", stroke_width=0),
+            rich_text("body", 100, 562, 1720, 70,
+                [{"kind": "span", "text": "deck.4hum.ai  ·  examples/  ·  references/",
+                  "style": {"color": token("primary")}}],
+                text_align="center"),
+            rich_text("caption", 100, 650, 1720, 60,
+                [{"kind": "span", "text": "Copy an example, change the topic, run it. That's the whole workflow.",
+                  "style": {"color": token("mutedForeground")}}],
+                text_align="center"),
+            rich_text("caption", 100, 940, 1720, 60,
+                [{"kind": "span", "text": "slide-deck-skill  v1.18  ·  Maintained by 4hum.ai",
+                  "style": {"color": token("foreground")}}],
+                text_align="center"),
         ],
-        notes="This playbook is for agents building slide decks with the slide-deck-skill. "
-              "It covers image prompting, format sizing, narration writing, voice selection, "
-              "object choice, and production shortcuts — all demonstrated in this very deck.",
-        background={"kind": "solid", "color": token("background")},
-        transitions={"effect": "zoom", "durationMs": 500},
+        background={"kind": "solid", "color": token("foreground")},
     )
 
-    # ───────────────────────── 1  QUICK START
-    quickstart = slide(
-        [
-            *title_chip("QUICK START", 100, 80, 280),
-            text("heading", 100, 150, 1720, 70, "Your first deck in 5 minutes"),
-            text("subtitle", 100, 232, 1500, 52,
-                 "Copy these commands. Swap topic and theme. Everything else is defaults."),
-            shape(100, 310, 1720, 560, "surface", shape="rectangle", stroke_width=1),
-            numbered_list(
-                [
-                    "Authenticate once:  python scripts/auth.py",
-                    "Generate a hero image:  python scripts/generate_image.py \"TOPIC, dramatic lighting, dark background\" --size 1920x1080  →  copy the file_url",
-                    "Write your deck — one Python file. Use dark_tech_theme() and the HERO_IMG constant. "
-                    "Follow urban_mobility_2030.py or quantum_computing.py as templates.",
-                    "Validate before saving:  python my_deck.py | python scripts/deck_validator.py  (must print 'Validation passed')",
-                    "Save:  python my_deck.py | python scripts/save_deck.py \"My Deck Title\"  →  copy the deck_id",
-                    "Add narration one slide at a time:  python scripts/generate_audio.py \"Slide 0 narration.\" --default-voice | python scripts/patch_slide.py DECK_ID 0 --add-narration-track -",
-                ],
-                120, 330, 1680, 520, role="body",
-            ),
-            rich_text("caption", 100, 940, 1720, 40,
-                      [*amber("Tip: "), *muted("Keep each step in a shell script named after your deck. "
-                                               "You'll re-run steps 4–6 every time you iterate.")]),
-        ],
-        notes="The quickstart is six numbered steps: auth, generate image, write deck JSON, validate, "
-              "save, add narration. The key habit: keep a shell script per deck so you can re-run "
-              "the save+narrate cycle without re-typing commands.",
-    )
 
-    # ───────────────────────── 2  PROMPT FORMULA
-    formula = slide(
-        [
-            *title_chip("SECTION 2 · MASTERING IMAGES", 100, 80, 540),
-            text("heading", 100, 150, 1720, 70, "The Image Prompt Formula"),
-            text("subtitle", 100, 232, 1500, 52,
-                 "Five components. Use all five — vague prompts waste generation credits."),
-            table(
-                100, 310, 1720, 380,
-                [
-                    ["Component", "What it does", "Example values"],
-                    ["Subject", "What is in the frame", "Scientist examining DNA, aerial city skyline, abstract data graph"],
-                    ["Style / medium", "Visual treatment and realism level",
-                     "cinematic photography, 3D render, flat illustration, editorial photo"],
-                    ["Lighting", "Defines mood and depth",
-                     "golden-hour, volumetric studio, dramatic side-light, soft overcast"],
-                    ["Colour palette", "Ties image to your slide theme",
-                     "deep navy and cyan, warm amber and white, monochrome with red accent"],
-                    ["Composition", "How the camera frames the subject",
-                     "wide shot, close-up, aerial, portrait, rule-of-thirds foreground"],
-                ],
-            ),
-            shape(100, 720, 1720, 2, "border", shape="rectangle", stroke_width=0),
-            rich_text("body", 100, 734, 1720, 60,
-                      [*amber("Good: "),
-                       *[{"kind": "span",
-                          "text": '"Scientist examining glowing DNA strands in a modern lab, '
-                                  'editorial photography, clean overhead lighting, cool blue and white, '
-                                  'close-up with shallow depth of field"',
-                          "style": {"color": token("foreground")}}]]),
-            rich_text("body", 100, 806, 1720, 56,
-                      [*amber("Avoid: "),
-                       *[{"kind": "span",
-                          "text": '"Show a DNA molecule" or "a scientist" — no style, no light, no palette, no composition.',
-                          "style": {"color": token("mutedForeground")}}]]),
-            text("caption", 100, 940, 1720, 40,
-                 "Add 'no text, no watermarks, no logos' at the end if the model adds unwanted overlays."),
-        ],
-        notes="The five components of a great image prompt are subject, style/medium, lighting, "
-              "colour palette, and composition. All five together give the model a clear mental "
-              "picture; missing any one leads to generic output.",
-    )
+# ─── Assemble ─────────────────────────────────────────────────────────────────
 
-    # ───────────────────────── 3  SIZE GUIDE
-    sizes = slide(
-        [
-            *title_chip("IMAGE SIZING", 100, 80, 300),
-            text("heading", 100, 150, 1720, 70, "Generate at display size — never upscale"),
-            text("subtitle", 100, 232, 1500, 52,
-                 "Match --size to where the image actually appears. Wrong size = soft edges or letterboxing."),
-            table(
-                100, 310, 1060, 540,
-                [
-                    ["Slide use case", "Display region", "--size flag"],
-                    ["Full-bleed background (hero, cover, closing)", "1920 × 1080", "1920x1080"],
-                    ["Left or right split panel", "960 × 1080", "960x1080"],
-                    ["Portrait card (speaker / profile)", "720 × 900 px area", "720x900"],
-                    ["Square icon / thumbnail", "≤ 300 × 300", "600x600"],
-                    ["Wide banner / accent strip", "1920 × 400", "1920x400"],
-                    ["Section divider background", "1920 × 540", "1920x540"],
-                ],
-            ),
-            bullet_list(
-                [
-                    "Always use fit='cover' on full-bleed and split-panel images — it crops to fill without stretching.",
-                    "For portraits: generate at 720x900 (4:5) and display inside a 600×800 card — room to reposition.",
-                    "Do not use picsum.photos for content images. Seeds are random — a 'lab' prompt may return a boutique photo.",
-                    "Rate limit: allow 2 s between calls. On a 429, wait 15 s then retry.",
-                ],
-                1200, 310, 620, 540, role="body",
-            ),
-            rich_text("caption", 100, 940, 1720, 40,
-                      [*amber("Rule: "),
-                       *muted("One generate_image.py call per slide position. Never reuse a hero image as a "
-                               "split panel — the aspect ratio will not match.")]),
-        ],
-        notes="Generate images at the exact display size. A 1920x1080 hero forced into a 960-wide "
-              "split panel loses resolution and crops badly. Always pair image() with fit='cover' "
-              "for full-bleed and split-panel positions. Never use picsum for content-relevant images.",
-    )
-
-    # ───────────────────────── 4  PROMPT GALLERY — VISUAL
-    gallery_visual = slide(
-        [
-            *title_chip("PROMPT GALLERY", 100, 80, 320),
-            text("heading", 100, 150, 1720, 70, "Four archetypes — generated images shown below"),
-            # ── TL: Cover / Hero  (full-bleed dark concept image)
-            image(COVER_IMG, 80, 250, 840, 360, fit="cover"),
-            *label_chip("HERO / COVER", 100, 268),
-            # ── TR: Split panel portrait
-            image(PORTRAIT_IMG, 1000, 250, 840, 360, fit="cover"),
-            *label_chip("SPLIT PANEL · PORTRAIT", 1020, 268),
-            # ── BL: Data / concept
-            image(CONCEPT_IMG, 80, 640, 840, 360, fit="cover"),
-            *label_chip("DATA CONCEPT", 100, 658),
-            # ── BR: Night / closing CTA
-            image(NIGHT_IMG, 1000, 640, 840, 360, fit="cover"),
-            *label_chip("CLOSING / CTA", 1020, 658),
-        ],
-        notes="Four visual archetypes: hero/cover (dramatic dark wide shot), split-panel portrait "
-              "(person + shallow depth of field), data concept (abstract glowing network), "
-              "and closing/CTA (night city aerial). Each is generated at the correct --size "
-              "for its position. The prompts are on the next slide.",
-    )
-
-    # ───────────────────────── 5  PROMPT GALLERY — TEXT
-    gallery_text = slide(
-        [
-            *title_chip("THE PROMPTS", 100, 80, 280),
-            text("heading", 100, 150, 1720, 70, "Copy-paste ready — swap the subject, keep the structure"),
-            # Hero
-            shape(100, 250, 1720, 170, "surface", shape="rectangle", stroke_width=1),
-            rich_text("subtitle", 120, 265, 400, 40, amber("Hero / Cover  ·  --size 1920x1080")),
-            rich_text("body", 120, 308, 1680, 100,
-                      [{"kind": "span",
-                        "text": '"[TOPIC/SUBJECT], dramatic wide-angle view, cinematic photography, '
-                                'volumetric [COLOR]-[COLOR2] light, dark moody background, '
-                                '16:9 panoramic composition, no text no watermarks"',
-                        "style": {"color": token("foreground"), "fontFamily": "mono", "fontSize": 14}}]),
-            # Split panel
-            shape(100, 440, 1720, 170, "surface", shape="rectangle", stroke_width=1),
-            rich_text("subtitle", 120, 455, 500, 40, amber("Split Panel · Portrait  ·  --size 960x1080")),
-            rich_text("body", 120, 498, 1680, 100,
-                      [{"kind": "span",
-                        "text": '"[PERSON / ROLE] in [SETTING], professional editorial photography, '
-                                'clean studio lighting, shallow depth of field, neutral [COLOR] tones, '
-                                'portrait orientation, no text"',
-                        "style": {"color": token("foreground"), "fontFamily": "mono", "fontSize": 14}}]),
-            # Data concept
-            shape(100, 630, 1720, 170, "surface", shape="rectangle", stroke_width=1),
-            rich_text("subtitle", 120, 645, 500, 40, amber("Data Concept  ·  --size 1920x1080")),
-            rich_text("body", 120, 688, 1680, 100,
-                      [{"kind": "span",
-                        "text": '"Abstract [CONCEPT] visualization, glowing [COLOR] nodes and connections, '
-                                'dark navy background, particle field, wide cinematic 16:9, '
-                                'data visualization aesthetic, no text"',
-                        "style": {"color": token("foreground"), "fontFamily": "mono", "fontSize": 14}}]),
-            # Closing
-            shape(100, 820, 1720, 100, "surface", shape="rectangle", stroke_width=1),
-            rich_text("subtitle", 120, 835, 500, 40, amber("Closing / CTA  ·  --size 1920x1080")),
-            rich_text("body", 120, 868, 1680, 46,
-                      [{"kind": "span",
-                        "text": '"Aerial view of [CITY/SETTING] at night, golden light trails, deep indigo sky, cinematic, no text"',
-                        "style": {"color": token("foreground"), "fontFamily": "mono", "fontSize": 14}}]),
-        ],
-        notes="Four copy-paste prompt templates. Replace the bracketed placeholders with your topic. "
-              "The structure — subject, style, lighting, palette, composition — stays constant. "
-              "Always append 'no text no watermarks' to avoid unwanted overlays.",
-    )
-
-    # ───────────────────────── 6  WRITING NARRATION
-    narration_tips = slide(
-        [
-            *title_chip("SECTION 3 · VOICE & AUDIO", 100, 80, 500),
-            text("heading", 100, 150, 1720, 70, "Writing Narration That Lands"),
-            text("subtitle", 100, 232, 1500, 52,
-                 "Narration adds the voice. The slide has the visual. They should not repeat each other."),
-            table(
-                100, 310, 1720, 300,
-                [
-                    ["Rule", "Why it matters", "Example"],
-                    ["Write for ears, not eyes",
-                     "Listeners can't re-read — be linear and direct",
-                     "Say 'The chart shows a 30% drop' not 'As shown above'"],
-                    ["15–25 seconds per slide",
-                     "~40–70 words. Long enough to explain, short enough to hold attention",
-                     "Count words before generating — 60 words ≈ 20 s at normal pace"],
-                    ["Lead with the insight",
-                     "Listeners tune out during build-up",
-                     "Start with 'Congestion costs $166 billion a year' not 'Let's look at congestion'"],
-                    ["Don't read the slide",
-                     "If narration echoes every bullet, it feels like a slideshow from 1998",
-                     "Add context, backstory, or implication the slide doesn't show"],
-                ],
-            ),
-            bullet_list(
-                [
-                    "Use 'we' and 'you' — conversational tone keeps listeners engaged.",
-                    "Avoid bullet-list sentence structure in narration — write in flowing prose.",
-                    "Test by reading aloud before generating — if you stumble, rewrite it.",
-                    "Speed 0.85–0.9 for educational content; 1.0 for pitch/sales; 1.1 for upbeat summaries.",
-                ],
-                100, 640, 1720, 280, role="body",
-            ),
-            text("caption", 100, 940, 1720, 40,
-                 "Pipe narration directly: generate_audio.py 'text' --voice-id ID | patch_slide.py DECK 0 --add-narration-track -"),
-        ],
-        notes="Great narration adds context the slide doesn't show. Lead with the insight, "
-              "keep it to 15-25 seconds, write flowing prose not bullet-list sentences, "
-              "and never repeat what's already visible on screen.",
-    )
-
-    # ───────────────────────── 7  VOICE SELECTION + MUSIC
-    voice_music = slide(
-        [
-            *title_chip("VOICE + BACKGROUND MUSIC", 100, 80, 480),
-            text("heading", 100, 150, 1720, 70, "Match the voice to the deck's emotional register"),
-            table(
-                100, 250, 1060, 360,
-                [
-                    ["Voice (English)", "Personality", "Best for"],
-                    ["George", "Warm, captivating storyteller", "Educational, documentary, keynote"],
-                    ["Sarah", "Mature, reassuring, confident", "Corporate, investor, professional"],
-                    ["Charlie", "Deep, confident, energetic", "Sales, product launch, promo"],
-                    ["Alice", "Clear, engaging educator", "Training, explainer, onboarding"],
-                    ["River", "Relaxed, neutral, informative", "Background ambient, voiceover bed"],
-                    ["Bill", "Wise, mature, balanced", "Thought leadership, strategy, exec brief"],
-                ],
-            ),
-            shape(1160, 250, 660, 360, "surface", shape="rectangle", stroke_width=1),
-            rich_text("subtitle", 1178, 265, 620, 40, amber("Background Music Tips")),
-            bullet_list(
-                [
-                    "Volume 0.1–0.2 keeps music under the narrator.",
-                    "Use --loop for beds that fill the full deck.",
-                    "Use River or a slow-paced TTS for ambient voice beds.",
-                    "Real music: pass any royalty-free MP3 URL via --url.",
-                    "Remove with: set_deck_music.py DECK_ID --clear",
-                ],
-                1178, 315, 620, 280, role="body",
-            ),
-            line(100, 640, 1720, 2, stroke="border", stroke_width=2),
-            rich_text("body", 100, 660, 1720, 60,
-                      [*amber("Tip: "),
-                       *[{"kind": "span",
-                          "text": "Run --list-voices first, copy the voice id you want, "
-                                  "then use --voice-id consistently across all slides. "
-                                  "Using --default-voice is fine for prototyping but may change "
-                                  "between runs if voices are reordered.",
-                          "style": {"color": token("foreground")}}]]),
-            text("caption", 100, 780, 1720, 40,
-                 "Generate: python scripts/generate_audio.py --list-voices   →   copy the 'id' field"),
-            text("caption", 100, 830, 1720, 40,
-                 "Add music: python scripts/set_deck_music.py DECK_ID --url 'https://…/music.mp3' --loop --volume 0.15"),
-        ],
-        notes="Match the voice to the deck's emotional register. George for storytelling, "
-              "Sarah for corporate confidence, Charlie for energy. Background music sits at "
-              "0.1-0.2 volume, loops=true, using any direct MP3 URL. Use --list-voices to "
-              "find voice IDs before starting a long narration session.",
-    )
-
-    # ───────────────────────── 8  RIGHT OBJECT RIGHT DATA
-    object_choice = slide(
-        [
-            *title_chip("SECTION 4 · OBJECT MASTERY", 100, 80, 480),
-            text("heading", 100, 150, 1720, 70, "Right Object, Right Data"),
-            text("subtitle", 100, 232, 1500, 52, "Every object type has a data shape it's designed for. Pick wrong and the audience works harder."),
-            table(
-                100, 310, 1720, 560,
-                [
-                    ["If your data is…", "Use…", "Not…", "Because…"],
-                    ["Numbers that need comparison",
-                     "chart(chart_type='bar')",
-                     "table()",
-                     "Bars pre-compute the comparison visually"],
-                    ["Items with 3+ attributes each",
-                     "table()",
-                     "bullet_list()",
-                     "Tables align attributes across rows; bullets can't"],
-                    ["A sequence of steps",
-                     "numbered_list() or process_flow()",
-                     "bullet_list()",
-                     "Numbering signals order; bullets signal equivalence"],
-                    ["A single headline stat",
-                     "kpi_card()",
-                     "text() at large font",
-                     "kpi_card() adds label and context — text() alone lacks hierarchy"],
-                    ["Relationships between nodes",
-                     "diagram() with Mermaid",
-                     "bullet_list()",
-                     "Spatial layout makes topology readable; bullets flatten it"],
-                    ["3–5 key points with no order",
-                     "bullet_list()",
-                     "chart() or table()",
-                     "Bullets are the lightest container for unstructured text"],
-                    ["One big concept, visual reinforcement",
-                     "image() or video()",
-                     "text() alone",
-                     "A photo or clip replaces a hundred words when subject = visual"],
-                ],
-            ),
-            text("caption", 100, 940, 1720, 40,
-                 "Max 10 objects per slide. If you need more, split into two slides with a shared heading."),
-        ],
-        notes="Object choice is a data-structure decision. Charts pre-compute comparisons visually. "
-              "Tables align multi-attribute items. Numbered lists signal sequence. kpi_card adds "
-              "the label and context that raw text lacks. Diagrams make topology readable. "
-              "Max 10 objects per slide — if you need more, split the slide.",
-    )
-
-    # ───────────────────────── 9  PATCH vs MERGE vs REGENERATE
-    iteration = slide(
-        [
-            *title_chip("SECTION 5 · PRODUCTION", 100, 80, 340),
-            text("heading", 100, 150, 1720, 70, "Patch, Merge, or Regenerate?"),
-            text("subtitle", 100, 232, 1500, 52, "Three tools for three kinds of change. Using the wrong one wastes time and credits."),
-            table(
-                100, 310, 1720, 340,
-                [
-                    ["Script", "When to use it", "What it touches", "Speed"],
-                    ["patch_slide.py", "Fix 1–2 slides: wrong text, bad objects, add narration",
-                     "One slide's objects or notes field",  "~3 s"],
-                    ["merge_deck.py", "Change theme, title, or a shared property across all slides",
-                     "Deck-level fields: title, theme, transitions",  "~4 s"],
-                    ["update_deck.py", "Rewrite 3+ slides or restructure sections",
-                     "Entire deckJson replaced",  "~5 s"],
-                    ["save_deck.py", "Brand-new deck from scratch",
-                     "Creates new deck_id",  "~5 s"],
-                ],
-            ),
-            line(100, 680, 1720, 2, stroke="border", stroke_width=2),
-            rich_text("body", 100, 698, 1720, 60,
-                      [*amber("Decision rule: "),
-                       *[{"kind": "span",
-                          "text": "1–2 slides broken → patch_slide. Theme looks wrong → merge_deck. "
-                                  "More than 3 slides need changing → regenerate the whole file and update_deck. "
-                                  "Never hand-edit the saved JSON — always regenerate from the Python source.",
-                          "style": {"color": token("foreground")}}]]),
-            bullet_list(
-                [
-                    "Keep your generator .py file as the source of truth — the saved deck is a build artifact.",
-                    "After patch_slide, run preview_deck.py to confirm the structure is still valid.",
-                    "Use merge_deck.py to swap themes when a client wants a different colour palette.",
-                ],
-                100, 778, 1720, 152, role="body",
-            ),
-        ],
-        notes="Three tools for three kinds of change. patch_slide for 1-2 slides. merge_deck for "
-              "theme and deck-level properties. update_deck when 3+ slides change. "
-              "The key discipline: keep the Python generator as source of truth and treat "
-              "the saved deckJson as a build artifact.",
-    )
-
-    # ───────────────────────── 10  5 PITFALLS
-    pitfalls = slide(
-        [
-            *title_chip("5 PITFALLS & FIXES", 100, 80, 360),
-            text("heading", 100, 150, 1720, 70, "Mistakes that cost time — and how to avoid them"),
-            table(
-                100, 250, 1720, 620,
-                [
-                    ["Pitfall", "Symptom", "Fix"],
-                    ["Live URL in frame(src=…)",
-                     "Device bezel appears but content area is blank",
-                     "Generate a screenshot with generate_image.py and use that PNG as src"],
-                    ["No poster image behind video()",
-                     "Slides show a red error box in screenshots and previews",
-                     "Add image(poster_url, …) at same x/y/w/h before the video() object"],
-                    ["Using picsum.photos for content images",
-                     "A 'genomics lab' slide shows a fashion boutique photo",
-                     "Use generate_image.py with a specific subject prompt"],
-                    ["Object count > 12 per slide",
-                     "Validator passes but slide looks cluttered; render is slow",
-                     "Split content across two slides; use bullet_list() to group items"],
-                    ["Narration repeats the slide text verbatim",
-                     "Listener feels lectured at; attention drops",
-                     "Write narration to ADD context, not echo bullets. One paragraph, flowing prose."],
-                ],
-            ),
-            rich_text("caption", 100, 940, 1720, 40,
-                      [*amber("Bonus: "),
-                       *muted("run  python my_deck.py | python scripts/deck_validator.py  before every save. "
-                               "It catches missing ids, bad token refs, and out-of-canvas objects.")]),
-        ],
-        notes="Five pitfalls: live URL in frame (fix: static image), no poster behind video "
-              "(fix: image layer), picsum for content (fix: generate_image.py), too many objects "
-              "(fix: split slide), narration echoes slide (fix: add context not bullets). "
-              "Run deck_validator.py before every save.",
-    )
-
-    # ───────────────────────── 11  CLOSING
-    closing = slide(
-        [
-            image(NIGHT_IMG, 0, 0, 1920, 1080, fit="cover"),
-            shape(0, 0, 1920, 1080, "background", shape="rectangle", stroke_width=0, opacity=0.62),
-            *title_chip("READY TO BUILD", 100, 80, 340),
-            rich_text("title", 100, 250, 1500, 200, w("Every great deck", 700)),
-            rich_text("title", 100, 430, 1400, 90,
-                      [{"kind": "span", "text": "starts with one good prompt.",
-                        "style": {"color": token("accent"), "fontWeight": 700}}]),
-            bullet_list(
-                [
-                    "Use the 5-part prompt formula — subject, style, lighting, palette, composition.",
-                    "Generate images at display size — never upscale.",
-                    "Write narration to add context, not echo the slide.",
-                    "Match your voice to the deck's emotional register.",
-                    "patch_slide for small fixes; regenerate when 3+ slides change.",
-                ],
-                100, 550, 1400, 330, role="body",
-            ),
-            rich_text("caption", 100, 940, 1200, 40,
-                      muted("examples/  ·  urban_mobility_2030.py  ·  quantum_computing.py  "
-                            "·  agent_skills_marketplace.py  ·  renewable_transition.py")),
-        ],
-        notes="Five takeaways: the prompt formula, size-matching, narration discipline, voice "
-              "matching, and the patch-vs-regenerate decision. The examples folder has four "
-              "working decks to learn from.",
-        background={"kind": "solid", "color": token("background")},
-        transitions={"effect": "fade", "durationMs": 400},
-    )
-
+def build() -> dict:
     return deck(
-        "The Slide Deck Agent Playbook",
+        "Slide Deck Skill -- A Field Guide",
         [
-            section("Quick Start", [cover, quickstart]),
-            section("Mastering Images", [formula, sizes, gallery_visual, gallery_text]),
-            section("Voice & Audio", [narration_tips, voice_music]),
-            section("Object Mastery", [object_choice]),
-            section("Production Tips", [iteration, pitfalls, closing]),
+            section("Start",        [s_cover(), s_quickstart()]),
+            section("Images",       [s_prompt_formula(), s_size_picker(),
+                                     s_image_gallery(), s_prompt_templates()]),
+            section("Voice",        [s_writing_for_voice(), s_narration_pipeline()]),
+            section("Pro Patterns", [s_object_picker(), s_patch_dont_rebuild(), s_pitfalls()]),
+            section("Go Build",     [s_closing()]),
         ],
-        theme=theme,
+        theme=field_guide_theme(),
     )
 
 
 if __name__ == "__main__":
-    print(json.dumps(build_deck()))
+    print(json.dumps(build(), indent=2))

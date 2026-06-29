@@ -3,6 +3,28 @@
 All notable changes to this skill are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.19.0] — 2026-06-29
+
+### Changed
+
+- **`examples/skill_playbook.py`**: Complete rewrite as a user-centric "Field Guide" (12 slides,
+  5 sections). New warm editorial theme: Zilla Slab display, Nunito Sans body, cream `#f7f3ec`
+  background, signal orange `#e8611a` accent, forest green `#2d6a4f` secondary — replacing the
+  previous dark navy/violet blueprint theme. Content restructured around workflows, not features:
+  *Start* (5-command quickstart with terminal mockup), *Images* (prompt formula Mermaid diagram,
+  size picker table, image gallery with real generated images + prompts, 4 copy-paste templates),
+  *Voice* (narration rules with before/after rewrite, full pipeline diagram), *Pro Patterns*
+  (object picker decision table, patch-vs-rebuild token cost comparison, 5 pitfalls table),
+  *Go Build* (minimal dark closing slide). Fixed: all rich_text span colors use theme token refs;
+  multi-line text splits into separate blocks (no literal newlines in TextSpan); `code` textStyle
+  uses `success` token (bright lime `#a3e635`) for readability on dark terminal cards. Deck ID:
+  `acd5b3d7-2f66-41f0-b6ba-144d501f4049`.
+
+### Fixed
+
+- **`examples/skill_playbook.py`**: Validator and API now accept the deck — added `success`,
+  `warning`, `destructive` as the allowed extended color token names (not arbitrary custom keys).
+
 ## [1.18.0] — 2026-06-29
 
 ### Added
