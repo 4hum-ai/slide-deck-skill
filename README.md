@@ -1,131 +1,194 @@
 # slide-deck-skill
 
-An agent skill package for creating, editing, and
-publishing professional slide decks on [deck.4hum.ai](https://deck.4hum.ai).
+An agent skill that creates, edits, and publishes professional slide decks on
+[deck.4hum.ai](https://deck.4hum.ai) — straight from a plain-English request like
+*"make me a 10-slide pitch deck on our solar startup."*
 
-The agent generates slide JSON directly from the
-[slide-scene-graph v0.4.0](references/scene-graph.md) schema, validates it
-locally, then saves it through the deck.4hum.ai REST API via bundled Python
-scripts. No backend LLM call is needed for content — the agent writes the deck
-JSON itself.
+Your AI agent does the work: it designs a custom theme, writes the slide JSON,
+validates it, generates any images/video/narration, saves the deck, and hands
+you back a link. Works with **Claude Code, Claude Desktop / claude.ai, Codex,
+Cursor, and any agent that can read files and run shell commands.**
 
 ## What it does
 
-- Designs a custom theme matched to the topic's tone and audience (not just
-  picks from a list — uses two structural reference themes as a starting point)
-- Generates charts, tables, diagrams (Mermaid), images, and rich text objects
-- Validates the deck JSON locally before any network call
-- Previews rendered slides as screenshots so the agent can evaluate and iterate
-- Saves to deck.4hum.ai and returns the edit URL
-- Updates existing decks via `update_deck.py`
-- Generates custom hosted images via the API
+- Designs a custom theme matched to your topic's tone and audience
+- Generates charts, tables, diagrams (Mermaid), AI images, video, and narration
+- Validates every deck locally before it touches the network
+- Previews rendered slides as screenshots so the agent can self-check and iterate
+- Saves to deck.4hum.ai and returns the edit URL — and updates existing decks later
 
-## Prerequisites
+---
 
-- Python 3.8+
-- Network access to the deck.4hum.ai API
-- A deck.4hum.ai account (run `python scripts/auth.py` once to authenticate)
+## Requirements (read this first — it's short)
 
-## Installation
+You only need two things:
 
-The easiest way — open a session with your agent and ask it to install the
-skill globally:
+1. **Python 3.8 or newer.** Check with `python --version` (or `python3 --version`).
+   The core scripts use **only the Python standard library — there is nothing to
+   `pip install`.** (One optional extra, `playwright`, is needed *only* if you want
+   the agent to screenshot slides locally.)
+2. **A free [deck.4hum.ai](https://deck.4hum.ai) account.** You sign in once, in
+   your browser, the first time the agent saves a deck (see [Sign in](#3-sign-in-once)).
 
-> "Clone https://github.com/4hum-ai/slide-deck-skill and install it globally
-> so the skill is available in all future sessions."
+That's it. No API keys to copy, no `.env` file to edit, no build step.
 
-The agent knows where its own global skills directory is and will handle the
-rest. Start a new session afterward to activate it.
+---
 
-### Manual install (Claude Code)
+## Install
 
-If you prefer to do it yourself:
+Pick the path for your agent. **Every path is the same two ideas:** put this
+folder where your agent can find it, then let the agent read `SKILL.md`.
+
+### Easiest: just ask your agent
+
+Open a chat with your coding agent and paste:
+
+> Clone `https://github.com/4hum-ai/slide-deck-skill` and set it up as a skill I
+> can use. Then read its `SKILL.md` so you know how to use it.
+
+Most agents will figure out the right location and finish the setup themselves.
+If you'd rather do it by hand, use the matching section below.
+
+### Claude Code
+
+Claude Code auto-discovers skills — just clone into a skills folder and restart:
 
 ```bash
-# Global — available in all Claude Code sessions:
+# Available in every project (recommended):
 git clone https://github.com/4hum-ai/slide-deck-skill ~/.claude/skills/slide-deck-skill
 
-# Project-local — available only in this project:
+# …or only in the current project:
 git clone https://github.com/4hum-ai/slide-deck-skill .claude/skills/slide-deck-skill
 ```
 
-Start a new session — Claude Code auto-discovers skills from those locations.
-To update: `cd ~/.claude/skills/slide-deck-skill && git pull`
+Start a new session. Claude picks it up automatically — just ask for a deck.
 
-## Updating the skill
+### Claude Desktop / claude.ai (web)
 
-### Update the skill itself (get the latest version)
+Skills are uploaded through the UI (available on Pro, Max, Team, and Enterprise plans):
+
+1. Download this repo as a ZIP
+   ([Code → Download ZIP](https://github.com/4hum-ai/slide-deck-skill/archive/refs/heads/main.zip)),
+   or `git clone` it and re-zip the `slide-deck-skill` folder.
+2. In Claude, go to **Settings → Capabilities → Skills → Upload skill** and select
+   the ZIP (it must contain `SKILL.md` at the top level).
+3. Start a new chat and ask for a deck. *(Claude runs the bundled Python scripts in
+   its code environment; the one-time browser sign-in still applies.)*
+
+### Codex, Cursor, Windsurf, or any other agent
+
+These don't have a built-in "skills" folder, but they don't need one — the skill
+is just Markdown + Python. Two steps:
 
 ```bash
-# If installed via git clone:
-cd ~/.claude/skills/slide-deck-skill   # or wherever you installed it
+# 1. Clone it somewhere on your machine:
+git clone https://github.com/4hum-ai/slide-deck-skill
+```
+
+2. Point your agent at it. Either tell it directly each time —
+
+   > Read `slide-deck-skill/SKILL.md` and follow it to build me a deck about X.
+
+   — or make it permanent by adding one line to your agent's instructions file
+   (e.g. `AGENTS.md` for Codex, `.cursorrules` for Cursor):
+
+   ```
+   To create or edit slide decks, read and follow ./slide-deck-skill/SKILL.md.
+   ```
+
+Any agent that can run `python` and read files in that folder can now use the skill.
+
+---
+
+## Use it
+
+### 1. Ask for a deck
+
+Once the skill is installed, just describe what you want:
+
+> Create a slide deck on the benefits of microservices architecture.
+
+The agent plans the slides, designs a theme, writes and validates the JSON,
+generates any images, saves the deck, and returns a link like
+`https://deck.4hum.ai/app/decks/<id>/edit`.
+
+### 2. Keep iterating in plain English
+
+> Make the cover darker, add a chart of adoption by year, and cut slide 4.
+
+The agent edits only what changed and re-saves to the same URL.
+
+### 3. Sign in (once)
+
+The **first time** the agent saves a deck, it will print a sign-in prompt:
+
+```
+deck-4hum-ai: authorization required.
+  Open this URL in your browser:
+  https://deck.4hum.ai/auth/device
+  Confirmation code: ABCD-1234
+  Waiting for authorization...
+```
+
+Open the URL, enter the code, approve — and you're done. Your credentials are
+saved to `~/.open-academy/config.json` and reused automatically from then on. No
+key copying, no config files. (To sign out: `python scripts/auth.py logout`.)
+
+---
+
+## Troubleshooting
+
+| Problem | Fix |
+|---|---|
+| `python: command not found` | Install Python 3.8+ from [python.org](https://www.python.org/downloads/). On macOS/Linux the command may be `python3`. |
+| Agent can't find the skill | Make sure you started a **new** session after installing, and that `SKILL.md` sits at the top level of the folder. |
+| Stuck on "Waiting for authorization" | Finish the browser sign-in (open the URL, enter the code, approve). The code expires after ~15 min — re-run if so. |
+| "Authorization required" keeps reappearing | Delete `~/.open-academy/config.json` and let the agent re-run sign-in. |
+| Slide screenshots fail | Screenshots are optional and need `pip install playwright && python -m playwright install chromium`. The deck still saves fine without them. |
+| Windows piping / encoding errors | Use the Bash tool/Git Bash for piping JSON, or write JSON to a UTF-8 file first. See the *Windows / PowerShell notes* in [`references/commands.md`](references/commands.md). |
+
+---
+
+## Updating
+
+### Get the latest version of the skill
+
+```bash
+cd ~/.claude/skills/slide-deck-skill   # or wherever you cloned it
 git pull origin main
 ```
 
-Check [CHANGELOG.md](CHANGELOG.md) for what changed between versions.
-
-If a new version has schema or script changes, re-authenticate and re-validate
-any decks you intend to update:
-
-```bash
-python scripts/auth.py
-python scripts/deck_validator.py < my-deck.json
-```
+See [CHANGELOG.md](CHANGELOG.md) for what changed. (Claude Desktop / web users:
+re-download the ZIP and re-upload it.)
 
 ### Update an existing deck's content
 
-To push new JSON to a deck you already created:
+You normally just ask the agent ("update my microservices deck — add a slide on
+costs"). Under the hood it uses:
 
 ```bash
-# By deck ID (printed when you first saved the deck):
 python scripts/update_deck.py "<deck-id>" < updated-deck.json
-
-# Or pipe from a generator script:
-python my_generator.py | python scripts/update_deck.py "<deck-id>"
 ```
 
-The update script validates the JSON before sending, same as save. The deck
-URL does not change — reload `https://deck.4hum.ai/app/decks/<id>/edit` to
-see the new content.
+The deck URL doesn't change — reload `https://deck.4hum.ai/app/decks/<id>/edit`.
 
-### Bump the skill version (maintainers)
-
-When you make changes to the skill itself (scripts, references, SKILL.md),
-update `metadata.version` in `SKILL.md` and add an entry to `CHANGELOG.md`
-before tagging a release.
-
-## Quick start
-
-Once installed, just ask your agent:
-
-> "Create a slide deck on the benefits of microservices architecture."
-
-The agent will design a custom theme, plan the slides, generate deck JSON,
-validate it, preview the result, and return a link.
-
+---
 
 ## Structure
 
 ```
 slide-deck-skill/
-├── SKILL.md                          # Agent instructions (loaded at activation)
-├── scripts/
-│   ├── auth.py                       # Credential management
-│   ├── block_builder.py              # Block builders: card, portrait_card, kpi_card, grid, chart, table…
-│   ├── deck_patterns.py              # Backwards-compat re-export shim (deck_patterns → block_builder)
-│   ├── deck_validator.py             # Local preflight validator (--strict quality pass)
-│   ├── preview_deck.py               # Structural summary + WCAG contrast check (--theme-check)
-│   ├── patch_slide.py                # Targeted single-slide edit / insert / delete
-│   ├── generate_image.py             # Image generation
-│   ├── save_deck.py                  # Create deck via API
-│   └── update_deck.py                # Update existing deck
-├── references/
-│   ├── scene-graph.md                # Full deckJson schema reference
-│   ├── theme-presets.md              # Theme JSON objects, color tokens, font mood table
-│   ├── commands.md                   # Script commands, env vars, image sizing guide
-│   └── image-prompts.md              # Proven prompt templates (portrait, hero, icon, dataviz)
-└── examples/
-    └── agent_skills_marketplace.py   # Complete five-slide example
+├── SKILL.md                  # Agent instructions (loaded when the skill activates)
+├── scripts/                  # Pure-stdlib Python tools the agent runs
+│   ├── auth.py               #   one-time browser sign-in (device flow)
+│   ├── block_builder.py      #   schema-safe block builders: card, kpi, grid, chart, table…
+│   ├── deck_validator.py     #   local preflight validation (--strict quality pass)
+│   ├── save_deck.py / update_deck.py / patch_slide.py / merge_deck.py / get_deck.py
+│   ├── generate_image.py / generate_video.py / generate_audio.py / set_deck_music.py
+│   └── preview_deck.py / screenshot_slides.py   # inspect & screenshot (screenshot needs playwright)
+├── references/               # Schema + design guides the agent loads on demand
+│   ├── scene-graph.md  theme-presets.md  objects-guide.md  commands.md  image-prompts.md
+└── examples/                 # Complete generator scripts to learn from
 ```
 
 ## License
